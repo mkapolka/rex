@@ -1,18 +1,34 @@
 require 'active_support/core_ext/class/attribute'
 
-module ActionContainer
-    attr_accessor :actions
+class Action
+    attr_accessor :name, :function
+    def initialize(name, &function)
+        self.name = name
+        self.function = function
+    end
+end
 
-    # name: Any string
-    # direct object: :self or :none
-    # preposition: Any string (should really be a preposition though)
-    # indirect object: :self, :any, or :none
-    def self.action(name, direct_object, preposition, indirect_object)
-        self.actions += {
-            name: name,
-            direct_object: direct_object,
-            preposition: preposition,
-            indirect_object: indirect_object
-        }
+module ActionContainer
+    module ClassMethods
+        def self.extended(cls)
+            cls.class_attribute :actions
+            cls.actions = {}
+        end
+
+        # Action definitions should take the following parameters:
+        #   Actor, direct object, indirect object
+        def action(name, &function)
+            self.actions = self.actions.dup
+            action = Action.new(name, &function)
+            self.actions[name] = action
+        end
+    end
+
+    def self.included(cls)
+        cls.extend ClassMethods
+    end
+
+    def call_action(action_name, *args)
+        instance_exec(*args, &self.actions[action_name].function)
     end
 end

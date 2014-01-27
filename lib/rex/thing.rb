@@ -1,14 +1,10 @@
-require_relative 'actions.rb'
+require_relative './parseable_action.rb'
 
 class Thing
-    include ActionContainer
+    extend ParseableAction
 
-    class_attribute :actions, :name, :description
+    class_attribute :name, :description
     attr_accessor :location
-
-    def initialize
-        self.actions = []
-    end
 
     def move(room)
         if not self.location.nil?
