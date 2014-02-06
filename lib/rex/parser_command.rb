@@ -3,6 +3,9 @@ class ParserCommand
     DIROBJ_ANY = :any
     DIROBJ_NONE = :none
 
+    INDIROBJ_NONE = :none
+    INDIROBJ_ANY = :any
+
     attr_accessor :name, :direct_object, :preposition, :indirect_object, :function
 
     def initialize(name, direct_object, preposition, indirect_object, &function)
@@ -21,7 +24,7 @@ module Parseable
             cls.parser_commands = {}
         end
 
-        def parser_command(name, direct_object, preposition, indirect_object, &function)
+        def parser_command(name, direct_object=DIROBJ_NONE, preposition=nil, indirect_object=INDIROBJ_NONE, &function)
             self.parser_commands = self.parser_commands.dup
             command = ParserCommand.new(name, direct_object, preposition, indirect_object, &function)
             self.parser_commands[name] = command

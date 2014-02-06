@@ -53,7 +53,9 @@ class Parser
             # Match direct object
             case command.direct_object
             when ParserCommand::DIROBJ_SELF
-                dirobj_match = /#{direct_object}/ =~ thing.name
+                if direct_object && direct_object.length > 0 then
+                    dirobj_match = !(/#{direct_object}/ =~ thing.name).nil?
+                end
             when ParserCommand::DIROBJ_ANY
                 dirobj_match = true
             when ParserCommand::DIROBJ_NONE
@@ -80,13 +82,14 @@ class Parser
         potential_responders = []
         potential_responders.concat self.user.location.contents
         potential_responders << self.user.location
+        potential_responders << self.user.player.holding unless self.user.player.holding.nil?
         potential_responders.select! {|thing| get_responder(thing, verb, direct_object, preposition, indirect_object)}
 
         if potential_responders.length > 0
             responder = potential_responders[0]
             responder.call_parser_command(verb, user, direct_object, preposition, indirect_object)
         else
-            p "You want to #{verb} the #{direct_object} #{preposition} the #{indirect_object}?"
+            puts "You want to #{verb} the #{direct_object} #{preposition} the #{indirect_object}?"
             return false
         end
     end

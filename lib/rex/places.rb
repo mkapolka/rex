@@ -5,7 +5,7 @@ class ThroneRoom < Room
     self.description = "The room is suffused with bright sunlight."
     self.title = "The Throne Room"
     self.contents = [
-        Throne        
+        Throne, Apple
     ]
 
     exit 'south', :Foyer

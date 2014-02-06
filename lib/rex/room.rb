@@ -38,7 +38,7 @@ class Room
         self.parseable_action direction do |actor|
             actor.move(self.find_exit(direction).room)
             if actor.class == Player
-                actor.call_action('look')
+                actor.call_action('look', actor)
             end
         end
     end
