@@ -3,16 +3,27 @@ require_relative './parseable_action.rb'
 class Thing
     extend ParseableAction
 
-    class_attribute :name, :description
+    class_attribute :name, :description, :destroyed
     attr_accessor :location
+
+    def initialize
+        self.destroyed = false
+    end
 
     def move(room)
         if not self.location.nil?
             location.contents.delete self
         end
 
-        room.contents.push self
-        self.location = room
+        if not room.nil?
+            room.contents.push self
+            self.location = room
+        end
+    end
+
+    def destroy
+        self.move(nil)
+        self.destroyed = true
     end
 
     def tick
@@ -24,7 +35,8 @@ class Thing
     end
 
     parseable_action 'look', :self do |actor|
-        string = self.description + "\n"
+        string = "You see here #{self.name}\n"
+        string += self.description + "\n"
         # Add parsable actions
         action_strings = self.class.parser_commands.map do |key, command|
             "'#{command.name}' #{command.preposition}".strip

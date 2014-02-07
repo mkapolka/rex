@@ -39,5 +39,25 @@ class Apple < Thing
 
     parseable_action 'eat', :self do |actor|
         actor.tell "You eat the apple."
+        if self.held_by then
+            self.held_by.holding = nil
+        end
+        self.destroy
+    end
+end
+
+class WetNurse < Person
+    self.name = "your wet nurse"
+    self.description = "She's responsible for your safety"
+
+    def initialize
+        super
+        apple = Apple.new
+        apple.move(self.location)
+        self.take_thing Apple.new
+    end
+
+    parseable_action 'talk', :self do |actor|
+        actor.tell "#{self.name.capitalize} tells you to remember to wash behind your ears!"
     end
 end

@@ -15,6 +15,7 @@ class Foyer < Room
     self.description = "This room leads to the throne room through an exit to the north."
     self.title = "The Foyer"
     self.contents = [
+        WetNurse
     ]
 
     exit 'north', :ThroneRoom

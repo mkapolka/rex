@@ -4,7 +4,7 @@ class Person < Thing
     attr_accessor :holding, :wearing, :acted, :holding
     attr_accessor :opinions
 
-    def tell
+    def tell(what)
         # Do nothing by default
     end
 
@@ -14,6 +14,14 @@ class Person < Thing
 
     def see(event)
         
+    end
+
+    def name
+        if not self.holding.nil?
+            return "#{super}, holding #{self.holding.name}"
+        else
+            return "#{super}"
+        end
     end
 
     def move(room)
@@ -27,7 +35,15 @@ class Person < Thing
             return
         end
 
+        if thing.held_by == self
+            self.tell "You're already holding that!"
+            return
+        elsif not thing.held_by.nil?
+            thing.held_by.holding = nil
+        end
+
         self.holding = thing
+        thing.held_by = self
         self.tell "You pick up #{thing.name}"
     end
 
@@ -43,6 +59,7 @@ class Person < Thing
         end
 
         self.holding = nil
+        thing.held_by = nil
 
         thing.move(self.location)
         self.tell "You drop the #{thing.name}"
