@@ -6,7 +6,7 @@ class Room
 
     class_attribute :description, :title, :class_exits, :contents
     attr_accessor :contents, :world, :exits
-    
+
     def initialize world
         self.contents = []
         self.class.contents.each do |thing_class|

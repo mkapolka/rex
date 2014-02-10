@@ -1,4 +1,5 @@
 require_relative './parseable_action.rb'
+require_relative './parser_command.rb'
 
 class Thing
     extend ParseableAction
@@ -34,7 +35,20 @@ class Thing
         
     end
 
-    parseable_action 'look', :self do |actor|
+    def tell(what)
+
+    end
+
+    def tell_others(what)
+        unless self.location.nil?
+            self.location.contents.each do |content|
+                content.tell(what) if content != self
+            end
+        end
+    end
+
+    #parseable_action 'look', :self do |actor|
+    parser_command 'look', :self do |user|
         string = "You see here #{self.name}\n"
         string += self.description + "\n"
         # Add parsable actions
@@ -50,6 +64,6 @@ class Thing
         elsif action_strings.length == 1 then
             string += "It looks like you could #{action_strings[0]} this thing."
         end
-        actor.tell(string)
+        user.player.tell(string)
     end
 end

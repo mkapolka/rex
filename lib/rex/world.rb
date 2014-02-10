@@ -15,9 +15,8 @@ class World
     end
 
     def tick
-        locations.each do |location|
-            location.contents.each(&:tick)
-        end
+        all_things = locations.reduce([]){|ary, loc| ary += loc.contents}
+        all_things.each(&:tick)
     end
 
     def find_room(room_name)

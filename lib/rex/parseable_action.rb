@@ -14,6 +14,7 @@ module ParseableAction
             direct_object_thing = user.match_noun(direct_object)
             indirect_object_thing = user.match_noun(indirect_object, isnt: direct_object)
             self.call_action(name, user.player, direct_object, indirect_object)
+            user.acted = true
         end
 
         self.parser_command(name, direct_object, preposition, indirect_object, &mapped_proc)

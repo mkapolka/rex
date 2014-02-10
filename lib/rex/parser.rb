@@ -42,7 +42,10 @@ class Parser
             parse input
         end
 
-        world.tick
+        if user.acted
+            world.tick
+            user.acted = false
+        end
 
         return true
     end
@@ -97,10 +100,11 @@ end
 
 class User
     # The Thing that the player is controlling
-    attr_accessor :player
+    attr_accessor :player, :acted
 
     def initialize(player)
         self.player = player
+        self.acted = false
     end
 
     def location
