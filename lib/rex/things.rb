@@ -1,21 +1,23 @@
 require_relative 'thing.rb'
 require_relative 'person.rb'
 require_relative 'carryable.rb'
+require_relative 'container.rb'
 
 class Throne < Thing
     self.name = "a golden throne"
     self.description = "This throne glitters in the sunlight."
 
     parseable_action 'sit', :self do |actor|
-        puts "You sit on the throne"
+        puts "I sit on the throne"
     end
 end
 
 class Player < Person
-    self.name = "yourself"
+    self.name = "me"
 
     def tell(string)
         puts string
+        puts ""
     end
 
     #parseable_action 'look', :none do |me|
@@ -29,7 +31,7 @@ class Player < Person
         end
         names = (things - ignored).map(&:name)
         things_description = names.join("\n\t")
-        user.player.tell "You see here...\n\t#{things_description}"
+        user.player.tell "I see here...\n\t#{things_description}"
     end
 end
 
@@ -40,7 +42,7 @@ class Apple < Thing
     self.description = "It's shiny and red."
 
     def eat(eater)
-        eater.tell "You eat #{self.name}."
+        eater.tell "I eat #{self.name}."
         eater.tell_others "#{eater.name} eats the apple."
         if self.held_by then
             self.held_by.holding = nil
@@ -55,8 +57,8 @@ class Apple < Thing
 end
 
 class WetNurse < Person
-    self.name = "your wet nurse"
-    self.description = "She's responsible for your safety"
+    self.name = "my wet nurse"
+    self.description = "She's responsible for my safety"
 
     def initialize
         super
@@ -82,7 +84,7 @@ class WetNurse < Person
     end
 
     parseable_action 'talk', :self do |actor|
-        actor.tell "#{self.name.capitalize} tells you to remember to wash behind your ears!"
+        actor.tell "#{self.name.capitalize} tells me to remember to wash behind my ears!"
     end
 end
 
@@ -106,4 +108,40 @@ class Crown < Clothing
 
     self.name = "A sparkling crown"
     self.description = "He who wears it commands the kingdom."
+end
+
+class Hood < Clothing
+    include Carryable
+
+    slot = "Head"
+
+    self.name = "a darkly colored hood"
+    self.description = "This will hide my identity."
+end
+
+class Stove < Container
+    attr_accessor :lit
+
+    self.name = "an iron cauldron suspended over a fire pit"
+
+    def initialize
+        super
+        self.lit = false
+    end
+
+    def description
+        base = "The cook uses this to make stews."
+        base += " The fire underneath is lit. The water in the cauldron is bubbling away." if self.lit
+        return base
+    end
+
+    def light(actor)
+        actor.tell "I light fire pit beneath the cauldron."
+        actor.tell_others "#{actor.name} lights the fire pit beneath the cauldron"
+        self.lit = true
+    end
+
+    parseable_action 'light', :self do |actor|
+        self.light(actor)
+    end
 end

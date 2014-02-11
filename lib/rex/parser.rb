@@ -50,28 +50,6 @@ class Parser
         return true
     end
 
-    def get_responder(thing, verb, direct_object, preposition, indirect_object) 
-        responders = thing.parser_commands.values.select do |command|
-            name_match = (verb == command.name)
-            # Match direct object
-            case command.direct_object
-            when ParserCommand::DIROBJ_SELF
-                if direct_object && direct_object.length > 0 then
-                    dirobj_match = !(/#{direct_object}/ =~ thing.name).nil?
-                end
-            when ParserCommand::DIROBJ_ANY
-                dirobj_match = true
-            when ParserCommand::DIROBJ_NONE
-                dirobj_match = direct_object.nil?
-            end
-            # match preposition
-            prep_match = preposition == command.preposition
-
-            name_match && dirobj_match && prep_match
-        end
-        return responders.first()
-    end
-
     def parse(string)
         # Find potential actions
         parts = string.split
@@ -86,7 +64,7 @@ class Parser
         potential_responders.concat self.user.location.contents
         potential_responders << self.user.location
         potential_responders << self.user.player.holding unless self.user.player.holding.nil?
-        potential_responders.select! {|thing| get_responder(thing, verb, direct_object, preposition, indirect_object)}
+        potential_responders.select! {|thing| thing.can_respond_to(verb, user, direct_object, preposition, indirect_object)}
 
         if potential_responders.length > 0
             responder = potential_responders[0]
@@ -112,6 +90,6 @@ class User
     end
 
     def match_noun(name, isnt=nil)
-        self.location.contents.find {|x| x.name == name unless x == isnt}
+        self.location.contents.find {|x| /#{x.name}/ =~ name unless x == isnt}
     end
 end

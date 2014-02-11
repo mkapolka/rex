@@ -15,15 +15,15 @@ class Person < Thing
             self.unwear in_slot
         end
 
-        self.tell "You don #{clothing.name}."
-        self.tell_others "#{self.name} puts on #{clothing.name}"
+        self.tell "I don #{clothing.name.downcase}."
+        self.tell_others "#{self.name} puts on #{clothing.name.downcase}"
         self.wearing << clothing
         clothing.worn_by = self
     end
 
     def unwear(clothing)
         if self.wearing.delete clothing
-            self.tell "You remove #{clothing.name}."
+            self.tell "I doff #{clothing.name.downcase}."
         end
     end
 
@@ -33,6 +33,20 @@ class Person < Thing
 
     def see(event)
         
+    end
+
+    def describe
+        desc = super
+        if self.holding != nil then
+            desc += "\nThey're holding #{self.holding.name}."
+        end
+        if self.wearing.length > 0 then
+            desc += "\n"
+            desc += "They're wearing...\n\t"
+            clothing_names = self.wearing.map{|x| x.name}
+            desc += clothing_names.join("\n\t")
+        end
+        return desc
     end
 
     def name
@@ -50,12 +64,12 @@ class Person < Thing
 
     def take_thing(thing)
         if thing.nil?
-            self.tell "You can't pick up nothing!"
+            self.tell "I can't pick up nothing!"
             return
         end
 
         if thing.held_by == self
-            self.tell "You're already holding that!"
+            self.tell "I'm already holding that!"
             return
         elsif not thing.held_by.nil? and thing.held_by != self
             thing.held_by.holding = nil
@@ -64,17 +78,17 @@ class Person < Thing
 
         self.holding = thing
         thing.held_by = self
-        self.tell "You pick up #{thing.name}"
+        self.tell "I've picked up #{thing.name}"
     end
 
     def drop_thing(thing)
         if thing.nil?
-            self.tell "You can't drop what isn't!"
+            self.tell "I can't drop what isn't!"
             return
         end
 
         if self.holding != thing
-            self.tell "You aren't holding that!"
+            self.tell "I'm not holding that!"
             return
         end
 
@@ -82,6 +96,6 @@ class Person < Thing
         thing.held_by = nil
 
         thing.move(self.location)
-        self.tell "You drop the #{thing.name}"
+        self.tell "I've dropped the #{thing.name}"
     end
 end

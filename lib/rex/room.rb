@@ -35,11 +35,9 @@ class Room
         self.class_exits ||= []
         self.class_exits << Exit.new(direction, room_name)
 
-        self.parseable_action direction do |actor|
-            actor.move(self.find_exit(direction).room)
-            if actor.class == Player
-                actor.call_action('look', actor)
-            end
+        self.parser_command direction do |user|
+            user.player.move(self.find_exit(direction).room)
+            user.player.call_parser_command('look', user)
         end
     end
 end

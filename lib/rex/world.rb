@@ -9,6 +9,7 @@ class World
         self.locations = []
         locations << ThroneRoom.new(self)
         locations << Foyer.new(self)
+        locations << Kitchen.new(self)
         locations.each(&:initialize_exits)
         self.player = Player.new
         self.player.move(locations[0])
