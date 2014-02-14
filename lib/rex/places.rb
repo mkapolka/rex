@@ -5,7 +5,7 @@ class ThroneRoom < Room
     self.description = "The room is suffused with bright sunlight."
     self.title = "The Throne Room"
     self.contents = [
-        Throne, Crown
+        Throne, King
     ]
 
     exit 'south', :Foyer
@@ -28,4 +28,6 @@ class Kitchen < Room
     self.contents = [
         Apple, Stove
     ]
+
+    exit 'west', :Foyer
 end

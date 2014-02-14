@@ -7,7 +7,7 @@ class Container < Thing
         self.contents = []
     end
 
-    def describe
+    def description
         str = super
         str += "\n"
         if self.contents.length > 0 then
@@ -16,6 +16,7 @@ class Container < Thing
         else
             str += "It is empty."
         end
+        return str
     end
 
     def report_add(actor, thing)

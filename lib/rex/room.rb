@@ -11,7 +11,7 @@ class Room
         self.contents = []
         self.class.contents.each do |thing_class|
             thing = thing_class.new
-            thing.move(self)
+            thing.transport(self)
         end
         self.world = world
     end
@@ -38,6 +38,17 @@ class Room
         self.parser_command direction do |user|
             user.player.move(self.find_exit(direction).room)
             user.player.call_parser_command('look', user)
+            user.acted = true
+        end
+    end
+
+    def inspect
+        return "{#{self.title} (containing #{self.contents.map(&:name).join(', ')}}"
+    end
+
+    def deliver_event(event)
+        self.contents.each do |thing|
+            thing.witness(event) if thing.respond_to? :witness
         end
     end
 end

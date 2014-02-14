@@ -59,6 +59,7 @@ class Person < Thing
 
     def move(room)
         super
+        self.wearing.each{|c| c.move(room)}
         self.holding.move(room) unless self.holding.nil?
     end
 

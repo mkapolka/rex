@@ -12,7 +12,7 @@ class World
         locations << Kitchen.new(self)
         locations.each(&:initialize_exits)
         self.player = Player.new
-        self.player.move(locations[0])
+        self.player.transport(locations[0])
     end
 
     def tick

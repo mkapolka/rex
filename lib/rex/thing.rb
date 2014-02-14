@@ -1,5 +1,6 @@
 require_relative './parseable_action.rb'
 require_relative './parser_command.rb'
+require_relative 'event.rb'
 
 class Thing
     extend ParseableAction
@@ -11,19 +12,32 @@ class Thing
         self.destroyed = false
     end
 
-    def move(room)
+    def transport(room)
+        # The more medical version of "move".
+        # Moves the Thing to that location but doesn't trigger any callbacks
         if not self.location.nil?
             location.contents.delete self
         end
 
+        self.location = room
+
         if not room.nil?
             room.contents.push self
-            self.location = room
+        end
+    end
+
+    def move(room)
+        if room != self.location then
+            old_room = self.location
+            move_event = MoveEvent.new(self, old_room, room)
+            old_room.deliver_event(move_event) unless old_room.nil?
+            self.transport(room)
+            room.deliver_event(move_event) unless room.nil?
         end
     end
 
     def destroy
-        self.move(nil)
+        self.transport(nil)
         self.destroyed = true
     end
 
@@ -50,6 +64,12 @@ class Thing
         return string
     end
 
+    def produce(event)
+        self.location.contents.each do |thing|
+            thing.witness event if thing.respond_to? :witness
+        end
+    end
+
     def tell(what)
 
     end
@@ -65,5 +85,9 @@ class Thing
     #parseable_action 'look', :self do |actor|
     parser_command 'look', :self do |user|
         user.player.tell(self.describe)
+    end
+
+    def inspect
+        return self.name
     end
 end

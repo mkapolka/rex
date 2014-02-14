@@ -2,6 +2,7 @@ require_relative 'thing.rb'
 require_relative 'person.rb'
 require_relative 'carryable.rb'
 require_relative 'container.rb'
+require_relative 'npc.rb'
 
 class Throne < Thing
     self.name = "a golden throne"
@@ -32,6 +33,14 @@ class Player < Person
         names = (things - ignored).map(&:name)
         things_description = names.join("\n\t")
         user.player.tell "I see here...\n\t#{things_description}"
+        exit_strings = user.player.location.exits.map do |exit|
+            "#{exit.direction} to get to #{exit.room.title.downcase}"
+        end
+        user.player.tell "I could go...\n\t#{exit_strings.join("\n\t")}"
+    end
+
+    parseable_action 'wait', :none do |actor|
+        actor.tell "I wait for a moment."
     end
 end
 
@@ -56,7 +65,7 @@ class Apple < Thing
     end
 end
 
-class WetNurse < Person
+class WetNurse < NPC
     self.name = "my wet nurse"
     self.description = "She's responsible for my safety"
 
@@ -68,15 +77,20 @@ class WetNurse < Person
     end
 
     def move(where)
-        old_location = self.location
-        self.tell_others "#{self.name} moves to #{where.title}"
         super
-        self.tell_others "#{self.name.capitalize} comes in from #{old_location.title.downcase}" unless old_location.nil?
     end
 
     def tick
-        exits = self.location.exits
-        self.move(exits[0].room)
+        super
+        wander
+    end
+
+    def wander
+        old_location = self.location
+        where = self.location.exits[0].room
+        self.tell_others "#{self.name} moves to #{where.title}"
+        self.move(where)
+        self.tell_others "#{self.name.capitalize} comes in from #{old_location.title.downcase}" unless old_location.nil?
     end
 
     def item_stolen(item, by_whom)
@@ -143,5 +157,19 @@ class Stove < Container
 
     parseable_action 'light', :self do |actor|
         self.light(actor)
+    end
+end
+
+class King  < NPC
+    self.name = "the king"
+    self.description = "He rules!"
+
+    def initialize
+        super
+        crown = Crown.new
+        self.wear(crown)
+    end
+
+    def tick
     end
 end
