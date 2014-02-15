@@ -7,9 +7,9 @@ class World
 
     def initialize
         self.locations = []
-        locations << ThroneRoom.new(self)
-        locations << Foyer.new(self)
-        locations << Kitchen.new(self)
+        Room::_ROOMS.each do |room_class|
+            locations << room_class.new(self)
+        end
         locations.each(&:initialize_exits)
         self.player = Player.new
         self.player.transport(locations[0])

@@ -4,11 +4,23 @@ require 'active_support/core_ext/class/attribute'
 class Room
     extend ParseableAction
 
+    def self._ROOMS
+        @_ROOMS ||= []
+        return @_ROOMS
+    end
+
+    def self.inherited(cls)
+        # Cuz I'm a big ol' lazy and don't want to update World
+        # every time I make a new room.
+        self._ROOMS << cls
+    end
+
     class_attribute :description, :title, :class_exits, :contents
     attr_accessor :contents, :world, :exits
 
     def initialize world
         self.contents = []
+        self.class.contents ||= []
         self.class.contents.each do |thing_class|
             thing = thing_class.new
             thing.transport(self)
@@ -21,6 +33,9 @@ class Room
         if class_exits then
             self.class_exits.each do |exit|
                 room = self.world.find_room(exit.room_name)
+                if room.nil?
+                    raise "Couldn't find room #{exit.room_name}!!"
+                end
                 exit.room = room
                 self.exits << exit
             end

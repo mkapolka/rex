@@ -27,14 +27,6 @@ class Person < Thing
         end
     end
 
-    def learn(information)
-
-    end
-
-    def see(event)
-        
-    end
-
     def describe
         desc = super
         if self.holding != nil then
