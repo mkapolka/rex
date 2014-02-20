@@ -159,17 +159,3 @@ class Stove < Container
         self.light(actor)
     end
 end
-
-class King  < NPC
-    self.name = "the king"
-    self.description = "He rules!"
-
-    def initialize
-        super
-        crown = Crown.new
-        self.wear(crown)
-    end
-
-    def tick
-    end
-end

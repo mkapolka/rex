@@ -1,5 +1,6 @@
 require_relative 'room.rb'
 require_relative 'things.rb'
+require_relative 'npcs.rb'
 
 class ThroneRoom < Room
     self.description = "The room is suffused with bright sunlight."
@@ -72,6 +73,9 @@ end
 class MyRoom < Room
     self.description = "This is my room. Here, at least, I can expect some privacy."
     self.title = "My Room"
+    self.contents = [
+        Maid
+    ]
 
     exit 'south', :PrinceAnnex
 end
