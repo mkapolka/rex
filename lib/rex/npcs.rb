@@ -9,9 +9,6 @@ class King < NPC
         crown = Crown.new
         self.wear(crown)
     end
-
-    def tick
-    end
 end
 
 class Maid < NPC
@@ -20,32 +17,54 @@ class Maid < NPC
 
     attr_accessor :cleaned_rooms, :state
 
-    STATE_NOT_BUSY = :not_busy
-    STATE_CLEANING = :cleaning
-    STATE_DONE = :done
-
     def initialize
         super
         self.cleaned_rooms = []
-        self.state = STATE_NOT_BUSY
     end
 
-    def tick
-        super
-        self.move_towards(self.location.world.find_room(:ThroneRoom))
+    def tick_state
         case self.state
-        when STATE_NOT_BUSY
-            tick_not_busy
+        when CleanState
+            if self.location != self.state.target_room
+                self.move_towards(self.state.target_room)
+            else
+                self.tell_others "#{self.name} cleans some stuff."
+            end
+        else
+            super
         end
     end
 
-    def tick_not_busy
-        self.tell_others "#{self.name} thinks about which room to clean next..."
-        remaining_rooms = reachable_rooms - self.cleaned_rooms
-        unless remaining_rooms.empty?
+    def decide_next_state
+        case self.state
+        when WaitState
+            self.tell_others "#{self.name} thinks about which room to clean next..."
+            remaining_rooms = reachable_rooms - self.cleaned_rooms
             next_room = remaining_rooms[0]
             self.tell_others "#{self.name} decides to clean #{next_room.title.downcase}"
-            #self.state = STATE_CLEANING
+            self.state = CleanState.new(next_room)
         end
     end
 end
+
+class CleanState < State
+    attr_accessor :target_room
+
+    def initialize(target_room)
+        self.target_room = target_room
+    end
+end
+
+class WetNurse < NPC
+    self.name = "my wet nurse"
+    self.description = "She's responsible for my safety"
+
+    def item_stolen(item, by_whom)
+        self.tell_others "#{self.name.capitalize} says 'Hey, give that #{item.name} back!'"
+    end
+
+    parseable_action 'talk', :self do |actor|
+        actor.tell "#{self.name.capitalize} tells me to remember to wash behind my ears!"
+    end
+end
+

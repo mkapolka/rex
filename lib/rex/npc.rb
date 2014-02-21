@@ -1,12 +1,56 @@
 require_relative 'event.rb'
 require_relative 'memory.rb'
+require_relative 'state.rb'
 
 class NPC < Person
-    attr_accessor :memories
+    attr_accessor :memories, :state
 
     def initialize
         super
         self.memories = []
+        self.state = WaitState.new(1)
+    end
+
+    def tick
+        super
+        self.tick_state
+    end
+
+    def tick_state
+        case self.state
+        when WaitState
+            self.wait_tick self.state
+        when WanderState
+            self.wander_tick self.state
+        end
+    end
+
+    def wait_tick(state)
+        state.timer -= 1
+        if state.timer < 0
+            self.decide_next_state
+        end
+    end
+
+    def wander_tick(state)
+        if self.location != state.target_location then
+            self.move_towards(state.target_location)
+        else
+            self.decide_next_state
+        end
+    end
+
+    def decide_next_state
+        case self.state
+        when WaitState
+            reachable = reachable_rooms
+            new_target_room = reachable[Random::rand(reachable.length)]
+            self.tell_others "#{self.name} says, \"I think I'll go to #{new_target_room.title}\""
+            self.state = WanderState.new(new_target_room)
+        when WanderState
+            self.tell_others "#{self.name} decides to wait here for a while"
+            self.state = WaitState.new(Random::rand(10))
+        end
     end
     
     #Basic memory and scheduling tasks
@@ -35,7 +79,6 @@ class NPC < Person
         if room != self.location
             paths = self.location.exits.map{|exit| self._path_distance(self.location, room)}
             paths.sort{|p1, p2| p1[0] <=> p2[0]}
-            puts "#{self.name} moves towards #{room.title} by way of #{paths[0][1].title}"
             self.move(paths[0][1])
         end
     end
@@ -73,4 +116,10 @@ class NPC < Person
         return reachable_rooms
     end
 
+    def move(room)
+        old_location = self.location
+        self.tell_others "#{self.name} moves to #{room.title.downcase}"
+        super
+        self.tell_others "#{self.name} comes in from #{old_location.title.downcase}"
+    end
 end

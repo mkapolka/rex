@@ -65,43 +65,6 @@ class Apple < Thing
     end
 end
 
-class WetNurse < NPC
-    self.name = "my wet nurse"
-    self.description = "She's responsible for my safety"
-
-    def initialize
-        super
-        apple = Apple.new
-        apple.move(self.location)
-        self.take_thing Apple.new
-    end
-
-    def move(where)
-        super
-    end
-
-    def tick
-        super
-        wander
-    end
-
-    def wander
-        old_location = self.location
-        where = self.location.exits[0].room
-        self.tell_others "#{self.name} moves to #{where.title}"
-        self.move(where)
-        self.tell_others "#{self.name.capitalize} comes in from #{old_location.title.downcase}" unless old_location.nil?
-    end
-
-    def item_stolen(item, by_whom)
-        self.tell_others "#{self.name.capitalize} says 'Hey, give that #{item.name} back!'"
-    end
-
-    parseable_action 'talk', :self do |actor|
-        actor.tell "#{self.name.capitalize} tells me to remember to wash behind my ears!"
-    end
-end
-
 class Clothing < Thing
     class_attribute :slot
     attr_accessor :worn_by
