@@ -13,15 +13,17 @@ class NPC < Person
 
     def tick
         super
-        self.tick_state
+        self.tick_state self.state
     end
 
-    def tick_state
-        case self.state
+    def tick_state(state)
+        case state
         when WaitState
-            self.wait_tick self.state
+            self.wait_tick state
         when WanderState
-            self.wander_tick self.state
+            self.wander_tick state
+        when FollowState
+            self.follow_tick state
         end
     end
 
@@ -40,6 +42,18 @@ class NPC < Person
         end
     end
 
+    def follow_tick(state)
+        if self.location != state.following.location then
+            target_room = remember_where_is state.following
+            unless target_room.nil?
+                self.move_towards target_room
+            else
+                self.tell_others "#{self.name} says, \"Drat! I've lost track of #{state.following.name}\""
+                self.decide_next_state
+            end
+        end
+    end
+
     def decide_next_state
         case self.state
         when WaitState
@@ -50,6 +64,10 @@ class NPC < Person
         when WanderState
             self.tell_others "#{self.name} decides to wait here for a while"
             self.state = WaitState.new(Random::rand(10))
+        when FollowState
+            self.state = WaitState.new(Random::rand(3))
+        else
+            self.state = WaitState.new(10)
         end
     end
     
@@ -68,6 +86,16 @@ class NPC < Person
             self.memories << old_location_memory
             self.memories << new_location_memory
         end
+    end
+
+    def remember_where_is(thing)
+        thing_memories = self.memories.select do |memory|
+            memory.class == LocationMemory and
+            memory.thing == thing and 
+            memory.is_current == true
+        end
+
+        return thing_memories[0].location
     end
 
     def memories_of_type(type)
