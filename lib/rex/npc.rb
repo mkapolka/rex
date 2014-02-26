@@ -11,8 +11,16 @@ class NPC < Person
         self.state = WaitState.new(1)
     end
 
+    def examine_room(room)
+        room.contents.each do |thing|
+            location_memory = LocationMemory.new(room, thing, true)
+            self.memories << location_memory
+        end
+    end
+
     def tick
         super
+        self.examine_room(self.location)
         self.tick_state self.state
     end
 
@@ -88,18 +96,36 @@ class NPC < Person
         end
     end
 
-    def remember_where_is(thing)
+    def search_for(thing, searched_rooms=[], priority_room, &selector)
+        selector = Proc.new{|x| x == thing} if selector.nil?
+        # Search current room
+        thing = self.location.contents.find &selector
+        if thing
+            return thing
+        else
+            # Search memories first
+        end
+    end
+
+    def remember_where_is(thing=nil, &callback)
+        # Returns the last known location of the thing or any thing
+        # that returns true to callback
+        callback = Proc.new{|x| x == thing} if callback.nil?
         thing_memories = self.memories.select do |memory|
             memory.class == LocationMemory and
-            memory.thing == thing and 
+            callback.call(memory.thing) and
             memory.is_current == true
         end
 
-        return thing_memories[0].location
+        return thing_memories[0].location if thing_memories.length > 0
     end
 
     def memories_of_type(type)
         return self.memories.filter{|x| x.type == type}
+    end
+
+    def find_room(room_class)
+        self.reachable_rooms.find{|x| x.class == room_class}
     end
 
     def move_towards(room)
@@ -149,5 +175,6 @@ class NPC < Person
         self.tell_others "#{self.name} moves to #{room.title.downcase}"
         super
         self.tell_others "#{self.name} comes in from #{old_location.title.downcase}"
+        examine_room self.location unless room.nil?
     end
 end

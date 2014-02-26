@@ -55,6 +55,10 @@ class Person < Thing
         self.holding.move(room) unless self.holding.nil?
     end
 
+    def unhold(thing)
+        self.holding = nil if self.holding == thing
+    end
+
     def take_thing(thing)
         if thing.nil?
             self.tell "I can't pick up nothing!"
@@ -65,7 +69,7 @@ class Person < Thing
             self.tell "I'm already holding that!"
             return
         elsif not thing.held_by.nil? and thing.held_by != self
-            thing.held_by.holding = nil
+            thing.held_by.unhold(thing)
             thing.held_by.item_stolen(thing, self) if thing.held_by.respond_to? :item_stolen
         end
 

@@ -26,9 +26,13 @@ class FollowState < State
 end
 
 class SearchState < State
-    attr_accessor :target
+    attr_accessor :target, :searched_rooms
 
     def initialize(target)
         self.target = target
+    end
+
+    def search_room(room)
+        self.searched_rooms << room unless self.searched_rooms.find(room)
     end
 end

@@ -58,7 +58,7 @@ class Room
     end
 
     def inspect
-        return "{#{self.title} (containing #{self.contents.map(&:name).join(', ')}}"
+        return "{#{self.title} (containing #{self.contents.map(&:name).join(', ')})}"
     end
 
     def deliver_event(event)

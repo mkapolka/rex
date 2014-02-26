@@ -29,10 +29,21 @@ class Kitchen < Room
     self.description = "Cured meats are hanging from the ceiling."
     self.title = "The Kitchen"
     self.contents = [
-        Apple, Stove
+        Apple, Stove, Cook
     ]
 
     exit 'east', :DiningRoom
+    exit 'north', :StoreRoom
+end
+
+class StoreRoom < Room
+    self.description = "This is where we keep the raw ingredients."
+    self.title = "the store room"
+    self.contents = [
+        Apple, SucklingPig
+    ]
+
+    exit 'south', :Kitchen
 end
 
 class DiningRoom < Room

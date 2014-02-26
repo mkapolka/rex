@@ -5,8 +5,8 @@ require_relative 'event.rb'
 class Thing
     extend ParseableAction
 
-    class_attribute :name, :description, :destroyed
-    attr_accessor :location
+    class_attribute :name, :description
+    attr_accessor :location, :destroyed
 
     def initialize
         self.destroyed = false
@@ -46,7 +46,7 @@ class Thing
     end
 
     def describe
-        string = "You see here #{self.name}\n"
+        string = "I see here #{self.name}\n"
         string += self.description + "\n" if self.description
         # Add parsable actions
         action_strings = self.class.parser_commands.map do |command|

@@ -4,12 +4,16 @@ class Parser
     QUIT_KEYWORDS = ["quit", "exit", "end game"]
     IRB_KEYWORD = "irb"
 
-    attr_accessor :world, :player, :continue, :user
+    attr_accessor :world, :player, :continue, :user, :nearby
 
     def initialize(world, player)
         self.world = world
         self.player = player
         self.user = User.new player
+    end
+
+    def nearby
+        return self.player.location.contents
     end
 
     def stop
@@ -90,6 +94,10 @@ class User
     end
 
     def match_noun(name, isnt=nil)
-        self.location.contents.find {|x| /#{x.name}/ =~ name unless x == isnt}
+        self.location.contents.find {|x| /#{name}/ =~ x.name && x != isnt}
+    end
+
+    def prompt
+        return gets.chomp
     end
 end
