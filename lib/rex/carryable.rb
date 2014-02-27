@@ -2,7 +2,7 @@ module Carryable
     attr_accessor :held_by
 
     def self.included(cls)
-        cls.parseable_action 'take',:self do |actor|
+        cls.parseable_action 'take', :self do |actor|
             actor.take_thing(self)
         end
 
@@ -30,10 +30,5 @@ module Carryable
                 end
             end
         end
-    end
-
-    def held_by=(thing)
-        @held_by.unhold self if @held_by.respond_to? :unhold
-        @held_by = thing
     end
 end

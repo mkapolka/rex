@@ -55,27 +55,30 @@ class Person < Thing
         self.holding.move(room) unless self.holding.nil?
     end
 
-    def unhold(thing)
-        self.holding = nil if self.holding == thing
-    end
-
     def take_thing(thing)
         if thing.nil?
             self.tell "I can't pick up nothing!"
             return
         end
 
+        thing_holder = thing.held_by
         if thing.held_by == self
             self.tell "I'm already holding that!"
             return
-        elsif not thing.held_by.nil? and thing.held_by != self
-            thing.held_by.unhold(thing)
-            thing.held_by.item_stolen(thing, self) if thing.held_by.respond_to? :item_stolen
+        else
+            self._remove_thing_from_holder(thing)
         end
 
         self.holding = thing
         thing.held_by = self
-        self.tell "I've picked up #{thing.name}"
+
+        if not thing_holder.nil? then
+            self.tell "I've taken #{thing.name} from #{thing_holder.name}"
+            self.tell_others "#{self.name} takes #{thing.name} from #{thing_holder.name}"
+        else
+            self.tell "I've picked up #{thing.name}"
+            self.tell_others "#{self.name} picks up #{thing.name}"
+        end
     end
 
     def drop_thing(thing)
@@ -94,5 +97,23 @@ class Person < Thing
 
         thing.move(self.location)
         self.tell "I've dropped the #{thing.name}"
+        self.tell_others "#{self.name} drops #{thing.name}"
+    end
+
+    def _remove_thing_from_holder(thing)
+        # Bookkeeping method. The actor responsible for taking the object out
+        # is the one to make sure that it is removed from the thing its taking from.
+        if not thing.held_by.nil?
+            if thing.held_by.is_a? Person then
+                thing.held_by.holding = nil
+            elsif thing.held_by.is_a? Container then
+                thing.held_by.remove(thing, self)
+            end
+        end
+    end
+
+    def put_thing_into(thing, container)
+        self._remove_thing_from_holder(thing)
+        container.add(thing, self)
     end
 end

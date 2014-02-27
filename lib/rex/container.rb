@@ -21,10 +21,6 @@ class Container < Thing
         return str
     end
 
-    def unhold(thing)
-        self.remove(thing)
-    end
-
     def report_add(actor, thing)
         actor.tell "I put #{thing.name} into #{self.name}."
         actor.tell_others "#{actor.name} puts #{thing.name} into #{self.name}"
@@ -42,9 +38,8 @@ class Container < Thing
     end
 
     def remove(thing, actor=nil)
-        if self.contents.index(thing) > 0 then
+        if self.contents.delete(thing)
             self.report_remove(actor, thing) unless actor.nil?
-            self.contents.delete(thing)
             thing.held_by = nil
         end
     end

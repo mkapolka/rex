@@ -173,7 +173,7 @@ class Cook < NPC
             self.move_towards(self.find_room(Kitchen))
         else
             # Find the stove
-            self.nearby_stove.add(self.holding, self)
+            self.put_thing_into(self.holding, nearby_stove)
             self.state = CookIngredientState.new state.ingredient_class
         end
     end
@@ -205,7 +205,7 @@ class Cook < NPC
         # Make sure we're holding ther right food
         unless state.ingredient_matches self.holding and self.holding.cooked
             # Check the current room
-            target_food = self.location.contents.find{|x| state.ingredient_matches x && x.respond_to?(:cooked) && x.cooked}
+            target_food = self.location.contents.find{|x| state.ingredient_matches x and x.respond_to?(:cooked) and x.cooked}
             unless target_food.nil?
                 self.take_thing(target_food)
             else
