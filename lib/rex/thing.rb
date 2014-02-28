@@ -5,8 +5,9 @@ require_relative 'event.rb'
 class Thing
     extend ParseableAction
 
-    class_attribute :name, :description
+    class_attribute :name, :description, :carryable
     attr_accessor :location, :destroyed
+    attr_accessor :held_by
 
     def initialize
         self.destroyed = false
@@ -85,6 +86,44 @@ class Thing
     #parseable_action 'look', :self do |actor|
     parser_command 'look', :self do |user|
         user.player.tell(self.describe)
+    end
+
+    parseable_action 'take', :self do |actor|
+        if self.carryable then
+            actor.take_thing(self)
+        else
+            actor.tell "I can't take that."
+        end
+    end
+
+    parseable_action 'drop', :self do |actor|
+        actor.drop_thing(self)
+    end
+
+    parser_command 'put', :self do |user|
+        if not self.carryable then
+            user.player.telll "I can't move that."
+            return
+        end
+
+        nearby_containers = self.location.contents.select{|thing| thing.is_a? Container}
+        if nearby_containers.empty? then
+            user.player.tell "There's nowhere to put that!"
+        else
+            container_names = nearby_containers.map {|thing| "\n\tin #{thing.name}"}
+            string = "Where should I put #{self.name}? I could put it..."
+            string += container_names.join("")
+            user.player.tell string
+            print ">"
+            choice = user.match_noun user.prompt
+            unless choice.nil?
+                choice.add(self, user.player) unless choice.nil?
+                user.player.tell "I put #{self.name} into #{choice.name}"
+                user.acted = true
+            else
+                user.player.tell "I don't see that here."
+            end
+        end
     end
 
     def inspect

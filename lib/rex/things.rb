@@ -1,6 +1,5 @@
 require_relative 'thing.rb'
 require_relative 'person.rb'
-require_relative 'carryable.rb'
 require_relative 'container.rb'
 require_relative 'npc.rb'
 
@@ -58,7 +57,7 @@ class Clothing < Thing
 end
 
 class Crown < Clothing
-    include Carryable
+    self.carryable = true
 
     slot = "Head"
 
@@ -67,7 +66,7 @@ class Crown < Clothing
 end
 
 class Hood < Clothing
-    include Carryable
+    self.carryable = true
 
     slot = "Head"
 
@@ -132,7 +131,7 @@ class Stove < Container
 end
 
 class Food < Thing
-    include Carryable
+    self.carryable = true
 
     attr_accessor :cooked, :heat_counter
     class_attribute :uncooked_name, :cooked_name, :cooking_time
