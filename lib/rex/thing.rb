@@ -1,5 +1,5 @@
-require_relative './parseable_action.rb'
-require_relative './parser_command.rb'
+require_relative 'parseable_action.rb'
+require_relative 'parser_command.rb'
 require_relative 'event.rb'
 
 class Thing
@@ -11,6 +11,10 @@ class Thing
 
     def initialize
         self.destroyed = false
+    end
+
+    def inspect
+        return self.name
     end
 
     def transport(room)
@@ -83,7 +87,6 @@ class Thing
         end
     end
 
-    #parseable_action 'look', :self do |actor|
     parser_command 'look', :self do |user|
         user.player.tell(self.describe)
     end
@@ -124,9 +127,5 @@ class Thing
                 user.player.tell "I don't see that here."
             end
         end
-    end
-
-    def inspect
-        return self.name
     end
 end

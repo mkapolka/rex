@@ -10,51 +10,45 @@ class King < NPC
         super
         crown = Crown.new
         self.wear(crown)
-    end
-end
-
-class Maid < NPC
-    self.name = "the maid"
-    self.description = "Her job is to clean the castle."
-
-    attr_accessor :cleaned_rooms, :state
-
-    def initialize
-        super
-        self.cleaned_rooms = []
-    end
-
-    def tick_state state
-        case state
-        when CleanState
-            if self.location != self.state.target_room
-                self.move_towards(state.target_room)
-            else
-                self.tell_others "#{self.name} cleans some stuff."
-            end
-        else
-            super
-        end
+        self.state = HoldCourtState.new
     end
 
     def decide_next_state
         case self.state
         when WaitState
-            self.tell_others "#{self.name} thinks about which room to clean next..."
-            remaining_rooms = reachable_rooms - self.cleaned_rooms
-            next_room = remaining_rooms[0]
-            self.tell_others "#{self.name} decides to clean #{next_room.title.downcase}"
-            self.state = CleanState.new(next_room)
+            self.state = HoldCourtState.new
+        end
+        super
+    end
+
+    def tick_state(state)
+        case state
+        when HoldCourtState
+            self.hold_court_tick state
+        end
+        super
+    end
+
+    def hold_court_tick(state)
+        if not self.in_room? ThroneRoom
+            self.move_towards(self.find_room ThroneRoom)
+        else
+            # Find the throne, sit on it.
+            throne = self.location.contents.find{|x| x.is_a? Throne}
+            unless throne.nil?
+                if throne.seating != self
+                    throne.sit(self)
+                else
+                    self.tell_others "#{self.name} shifts about uncomfortably on his throne."
+                end
+            else
+                puts "The king bellows, \"WHERE THE FUCK IS THE THRONE?\""
+            end
         end
     end
 end
 
-class CleanState < State
-    attr_accessor :target_room
-
-    def initialize(target_room)
-        self.target_room = target_room
-    end
+class HoldCourtState < State
 end
 
 class WetNurse < NPC

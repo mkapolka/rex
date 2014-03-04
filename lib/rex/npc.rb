@@ -177,4 +177,8 @@ class NPC < Person
         self.tell_others "#{self.name} comes in from #{old_location.title.downcase}"
         examine_room self.location unless room.nil?
     end
+
+    def in_room?(room_class)
+        self.location.is_a? room_class
+    end
 end

@@ -84,9 +84,7 @@ end
 class MyRoom < Room
     self.description = "This is my room. Here, at least, I can expect some privacy."
     self.title = "My Room"
-    self.contents = [
-        Maid
-    ]
+    self.contents = []
 
     exit 'south', :PrinceAnnex
 end

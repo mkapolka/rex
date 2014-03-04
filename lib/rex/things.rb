@@ -4,11 +4,35 @@ require_relative 'container.rb'
 require_relative 'npc.rb'
 
 class Throne < Thing
+    attr_accessor :seating
+
     self.name = "a golden throne"
     self.description = "This throne glitters in the sunlight."
 
+    def sit(thing)
+        if self.seating != thing
+            thing.tell "I sit on the throne."
+            thing.tell_others "#{thing.name} sits on the throne"
+            self.seating = thing
+        else
+            thing.tell "I'm already sitting on that!"
+        end
+    end
+
+    def stand(thing)
+        if self.seating == thing
+            thing.tell "I get up from the throne"
+            thing.tell_others "#{self.name} rises from the throne."
+            self.seating = nil
+        end
+    end
+
     parseable_action 'sit', :self do |actor|
-        puts "I sit on the throne"
+        self.sit(actor)
+    end
+
+    parseable_action 'stand', :self do |actor|
+        self.stand(actor)
     end
 end
 
