@@ -1,7 +1,32 @@
 require_relative 'event.rb'
 
 class NPC < Person
-    attr_accessor :memories
+    attr_accessor :opinions
+    class_attribute :belief_priority
+
+    PRINCE_IDENTITIES = {
+        Prince::COLOR_RED: 'Septimus'
+    }
+
+    def initialize
+        super
+        self.opinions = {}
+    end
+    
+    def thinks(who)
+        if who.is_a? Prince then
+            id = resolve_prince_identity who
+        else
+            id = who.class.name
+        end
+        
+        who[id] ||= Opinions.new
+    end
+
+    def resolve_prince_identity who
+        if not who.wearing.nil?
+        end
+    end
 
     def tick
         super
@@ -37,4 +62,12 @@ class NPC < Person
     def in_room?(room_class)
         self.location.is_a? room_class
     end
+end
+
+class Opinions
+    attr_accessor :is_trustworthy
+    attr_accessor :is_honorable
+    attr_accessor :is_industrious
+    attr_accessor :is_dependable
+    attr_accessor :is_caring
 end

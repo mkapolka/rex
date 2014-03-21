@@ -1,6 +1,7 @@
 require_relative 'thing.rb'
 require_relative 'person.rb'
 require_relative 'npc.rb'
+require_relative 'prince.rb'
 
 class Throne < Thing
     attr_accessor :seating
@@ -28,7 +29,11 @@ class Throne < Thing
 end
 
 class Player < Person
+    include Prince
+
     self.name = "me"
+
+    self.starting_tunic_color = COLOR_WHITE
 
     def tell(string)
         puts string
