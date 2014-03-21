@@ -1,9 +1,8 @@
-require_relative 'parseable_action.rb'
-require_relative 'parser_command.rb'
 require_relative 'event.rb'
+require_relative 'action.rb'
 
 class Thing
-    extend ParseableAction
+    include ActionContainer
 
     class_attribute :name, :description, :carryable
     attr_accessor :location, :destroyed
@@ -33,12 +32,12 @@ class Thing
 
     def move(room)
         if room != self.location then
-            old_room = self.location
-            move_event = MoveEvent.new(self, old_room, room)
-            old_room.deliver_event(move_event) unless old_room.nil?
             self.transport(room)
-            room.deliver_event(move_event) unless room.nil?
         end
+    end
+
+    def find_room(room_class)
+        self.location.world.locations.find{|x| x.class == room_class}
     end
 
     def destroy
@@ -51,10 +50,10 @@ class Thing
     end
 
     def describe
-        string = "I see here #{self.name}\n"
+        string = "That is #{self.name}\n"
         string += self.description + "\n" if self.description
         # Add parsable actions
-        action_strings = self.class.parser_commands.map do |command|
+        action_strings = self.class.actions.map do |command|
             "'#{command.name}' #{command.preposition}".strip
         end
         if action_strings.length > 1 then
@@ -83,48 +82,6 @@ class Thing
         unless self.location.nil?
             self.location.contents.each do |content|
                 content.tell(what) if content != self
-            end
-        end
-    end
-
-    parser_command 'look', :self do |user|
-        user.player.tell(self.describe)
-    end
-
-    parseable_action 'take', :self do |actor|
-        if self.carryable then
-            actor.take_thing(self)
-        else
-            actor.tell "I can't take that."
-        end
-    end
-
-    parseable_action 'drop', :self do |actor|
-        actor.drop_thing(self)
-    end
-
-    parser_command 'put', :self do |user|
-        if not self.carryable then
-            user.player.telll "I can't move that."
-            return
-        end
-
-        nearby_containers = self.location.contents.select{|thing| thing.is_a? Container}
-        if nearby_containers.empty? then
-            user.player.tell "There's nowhere to put that!"
-        else
-            container_names = nearby_containers.map {|thing| "\n\tin #{thing.name}"}
-            string = "Where should I put #{self.name}? I could put it..."
-            string += container_names.join("")
-            user.player.tell string
-            print ">"
-            choice = user.match_noun user.prompt
-            unless choice.nil?
-                choice.add(self, user.player) unless choice.nil?
-                user.player.tell "I put #{self.name} into #{choice.name}"
-                user.acted = true
-            else
-                user.player.tell "I don't see that here."
             end
         end
     end

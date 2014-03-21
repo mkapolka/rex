@@ -16,8 +16,12 @@ class World
     end
 
     def tick
+        # First, let the people do their own thing
         all_things = locations.reduce([]){|ary, loc| ary += loc.contents}
         all_things.each(&:tick)
+        # Then do the activities
+        activities = all_things.map(&:event).compact.uniq
+        activities.each(&:tick)
     end
 
     def find_room(room_name)

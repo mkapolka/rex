@@ -10,88 +10,52 @@ class King < NPC
         super
         crown = Crown.new
         self.wear(crown)
-        self.state = HoldCourtState.new
+        e = HoldCourtEvent.new
+        self.join(e)
+    end
+end
+
+class HoldCourtEvent < Event
+    def describe
+        not_leader = self.participants - [self.leader]
+        return "#{self.leader.name} is holding court. #{not_leader.map(&:name).to_sentence} are in attendance."
     end
 
-    def decide_next_state
-        case self.state
-        when WaitState
-            self.state = HoldCourtState.new
+    def leader
+        self.participants.find{|x| x.class == King}
+    end
+
+    def tick
+        participants.each do |actor|
+            # Move the participants to the throne room
+            if actor.location.class != ThroneRoom then
+                actor.move actor.find_room ThroneRoom
+            end
         end
-        super
-    end
 
-    def tick_state(state)
-        case state
-        when HoldCourtState
-            self.hold_court_tick state
-        end
-        super
-    end
+        king = self.leader
+        player = participants.find{|x| x.class == Player}
 
-    def hold_court_tick(state)
-        if not self.in_room? ThroneRoom
-            self.move_towards(self.find_room ThroneRoom)
-        else
-            # Find the throne, sit on it.
-            throne = self.location.contents.find{|x| x.is_a? Throne}
-            unless throne.nil?
-                if throne.seating != self
-                    throne.sit(self)
-                else
-                    self.tell_others "#{self.name} shifts about uncomfortably on his throne."
+        unless player.nil?
+            player.tell "The king holds court. Advice is sought, deals are made. Eventually, the king asks me how I would resolve a conundrum."
+            player.tell "A craftsman has taken on an order that he does not think he can complete. Should he:\n"\
+                        "a) Admit to his client that he cannot complete the order\n"\
+                        "b) Rush to complete the order, potentially sacrificing the quality of his work."
+            print ">"
+            responded = false
+            while !responded
+                response = gets.chomp
+                case response
+                when 'a'
+                    player.tell 'The king tells me, "You have the honesty to admit to your limitations. A wise choice."'
+                    responded = true
+                when 'b'
+                    player.tell 'The king tells me, "You are ambitious and tenacious. A wise choice."'
+                    responded = true
                 end
-            else
-                puts "The king bellows, \"WHERE THE FUCK IS THE THRONE?\""
             end
         end
     end
-end
-
-class HoldCourtState < State
-end
-
-class WetNurse < NPC
-    self.name = "my wet nurse"
-    self.description = "She's responsible for my safety"
-
-    def item_stolen(item, by_whom)
-        self.tell_others "#{self.name.capitalize} says 'Hey, give that #{item.name} back!'"
-    end
-
-    def tick_state(state)
-        case state
-        when ScaredState
-            self.tell_others "#{self.name.capitalize} shivers with fear."
-            self.wait_tick(self.state)
-        when WaitState, WanderState
-            player = self.location.contents.find do |thing|
-                thing.is_a? Player
-            end
-
-            unless player.nil?
-                self.tell_others "#{self.name.capitalize} says, \"There you are, you little rascal\""
-                self.tell_others "Great. Now #{self.name} is following me."
-                self.state = FollowState.new(player)
-            else
-                super
-            end
-        else
-            super
-        end
-    end
-
-    parseable_action 'talk', :self do |actor|
-        actor.tell "#{self.name.capitalize} tells me to remember to wash behind my ears!"
-    end
-
-    parseable_action 'scare', :self do |actor|
-        actor.tell "I gave #{self.name} a good fright! She's scared stiff!"
-        self.state = ScaredState.new(Random::rand(4) + 1)
-    end
-end
-
-class ScaredState < WaitState
 end
 
 class Cook < NPC
@@ -101,160 +65,27 @@ class Cook < NPC
 
     def initialize
         super
-        self.state = FindIngredientState.new(SucklingPig)
+        self.event = CookingEvent.new
     end
+end
 
-    def tick_state(state)
-        case state
-        when FindIngredientState
-            self.find_ingredient_tick(self.state)
-        when PrepareIngredientState
-            self.prepare_ingredient_tick(self.state)
-        when CookIngredientState
-            self.cook_ingredient_tick(self.state)
-        when DeliverFoodState
-            self.deliver_food_tick(self.state)
-        else
-            super
-        end
-    end
-
-    def decide_next_state
-        case self.state
-        when FindIngredientState
-            if self.state.ingredient_matches(self.holding)
-                self.state = CookIngredientState.new(self.holding.class)    
-            end
-        else
-            super
-        end
-    end
-
-    def find_ingredient_tick(state)
-        # Search current room
-        thing = self.location.contents.find{|t| state.ingredient_matches(t)}
-        unless thing.nil?
-            self.take_thing(thing)
-            self.state = PrepareIngredientState.new(state.ingredient_class)
-        end
-
-        state.searched_rooms << self.location
-
-        # Start searching in places where we remember seeing it
-        location = self.remember_where_is{|x| state.ingredient_matches(x)}
-        unless location.nil? && self.location != location then
-            self.move_towards(location)
-        else
-            # Start searching
-            rooms_to_search = [Kitchen, StoreRoom]
-            rooms_to_search = self.reachable_rooms - state.searched_rooms
-            if rooms_to_search.length > 0
-                self.move_towards(rooms_to_search[0])
+class CookingEvent  < Event
+    def tick
+        participants.each do |actor|
+            if not actor.in_room? Kitchen
+                actor.move actor.find_room Kitchen
             else
-                # Give up
-                puts "DEBUG MESSAGE: #{self.name} couldn't find the ingredient they need!"
+                messages = [
+                    "#{actor.name} turns the spit.",
+                    "#{actor.name} chops some onions.",
+                    "#{actor.name} slices an apple.",
+                    "#{actor.name} grinds up some spices.",
+                    "#{actor.name} grills up an onion.",
+                    "#{actor.name} throws a potato into the stew."
+                ]
+
+                actor.tell_others(messages[rand(messages.length)])
             end
         end
-    end
-
-    def prepare_ingredient_tick(state)
-        # Return to find ingredient state if we lose the item
-        if not state.ingredient_matches(self.holding) then
-            self.state = FindIngredientState.new(state.ingredient_class)
-        end
-
-        if self.location.class != Kitchen then
-            self.move_towards(self.find_room(Kitchen))
-        else
-            # Find the stove
-            self.put_thing_into(self.holding, nearby_stove)
-            self.state = CookIngredientState.new state.ingredient_class
-        end
-    end
-
-    def nearby_stove
-        self.location.contents.find{|x| x.class == Stove}
-    end
-
-    def cook_ingredient_tick(state)
-        if nearby_stove.nil?
-            self.move_towards(self.find_room(Kitchen))
-        end
-        # Make sure there's an ingredient in the stove
-        ingredient = nearby_stove.contents.find{|x| state.ingredient_matches x}
-        if ingredient.nil? then
-            state = FindIngredientState.new state.ingredient_class
-        else
-            if ingredient.cooked then
-                self.take_thing(ingredient)
-                self.tell_others "#{self.name} says \"Now to take this to the kitchen!\""
-                self.state = DeliverFoodState.new(state.ingredient_class, self.find_room(DiningRoom))
-            else
-                self.tell_others "#{self.name} turns the spit."
-            end
-        end
-    end
-
-    def deliver_food_tick(state)
-        # Make sure we're holding ther right food
-        unless state.ingredient_matches self.holding and self.holding.cooked
-            # Check the current room
-            target_food = self.location.contents.find{|x| state.ingredient_matches x and x.respond_to?(:cooked) and x.cooked}
-            unless target_food.nil?
-                self.take_thing(target_food)
-            else
-                # Start searching
-                location = self.remember_where_is{|x| state.ingredient_matches x && x.respond_to?(:cooked) && x.cooked}
-                unless location.nil?
-                    self.move_towards(location)
-                else
-                    # TODO more thorough search
-                end
-            end
-        else
-            # We actually have the thing- bring it to the kitchen
-            if self.location != state.target_room then
-                self.move_towards state.target_room
-            else
-                self.drop_thing self.holding
-                self.decide_next_state
-            end
-        end
-    end
-end
-
-class CookingState < State
-    attr_accessor :ingredient_class
-
-    def initialize(ingredient_class)
-        self.ingredient_class = ingredient_class
-    end
-
-    def ingredient_matches(thing)
-        return thing.class == self.ingredient_class
-    end
-end
-
-class FindIngredientState < CookingState
-    attr_accessor :searched_rooms, :next_room
-
-    def initialize(ingredient_class)
-        super
-        self.searched_rooms = []
-    end
-end
-
-class PrepareIngredientState < CookingState
-end
-
-class CookIngredientState < CookingState
-end
-
-class DeliverFoodState < CookingState
-    attr_accessor :target_room
-
-    def initialize(ingredient_class, target_room)
-        super ingredient_class
-        self.target_room = target_room
     end
 end

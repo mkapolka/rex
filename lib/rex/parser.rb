@@ -1,4 +1,4 @@
-require_relative './parser_command.rb'
+require_relative 'action.rb'
 
 class Parser
     QUIT_KEYWORDS = ["quit", "exit", "end game"]
@@ -24,58 +24,109 @@ class Parser
         continue = true
         while continue
             begin
-                continue = do_loop
+                self.world.tick if continue = prompt
             rescue
                 puts $!, $@
             end
         end
     end
 
-    def do_loop
-        print "Do what now?> "
-        input = gets.chomp        
-        case input.downcase
-        when *QUIT_KEYWORDS
-            return false
-        when IRB_KEYWORD
-            require 'ripl'
-            puts "Entering IRB mode"
-            Ripl.start :binding => binding
-            puts "Leaving IRB mode"
-        else
-            parse input
-        end
+    def prompt
+        # Returns true if the parser should continue parsing,
+        # false if the user wants to quit
 
-        if user.acted
-            world.tick
-            user.acted = false
+        acted = false
+        while not acted
+            puts "What should I do?"
+            puts "[g]o somewhere, [l]ook at something, [t]alk to someone, [d]o something, [j]oin an event, [w]ait a bit"
+
+            choice = gets.chomp
+
+            case choice
+            when 'g'
+                acted = prompt_go
+            when 'l'
+                prompt_look
+            when 't'
+                acted = prompt_talk
+            when 'd'
+                acted = prompt_do
+            when 'j'
+                acted = prompt_join
+            when 'w'
+                acted = true
+                user.player.tell "I'll wait here a moment."
+            when IRB_KEYWORD
+                require 'ripl'
+                puts "Entering IRB mode"
+                Ripl.start :binding => binding
+                puts "Leaving IRB mode"
+            when *QUIT_KEYWORDS
+                return false
+            end
         end
 
         return true
     end
 
-    def parse(string)
-        # Find potential actions
-        parts = string.split
-        verb = parts[0]
-        direct_object = parts[1]
-        preposition = parts[2]
-        indirect_object = parts[3]
+    def prompt_go
+        rooms = self.world.locations
+        strings = rooms.each_with_index.map{|location, i| "\n\t[#{i+1}]: #{location.title}"}
+        strings << "\n\t[n]evermind"
+        while true
+            puts "Where should I go?"
+            puts strings.join
+            choice = gets.chomp
+            if choice == 'n'
+                return false
+            else
+                chosen_room = rooms[choice.to_i - 1]
+                unless chosen_room.nil?
+                    if chosen_room == user.player.location
+                        puts "I'm already there!"
+                    else
+                        puts "I walk to #{chosen_room.title}."
+                        user.player.move chosen_room
+                        user.player.look
+                        success = true
+                        return true
+                    end
+                end
+            end
+        end
+    end
 
-        #actions_hash = potential_actions.select{|a| a.name == verb and a.compare_direct_object direct_object}
-        
-        potential_responders = []
-        potential_responders.concat self.user.location.contents
-        potential_responders << self.user.location
-        potential_responders << self.user.player.holding unless self.user.player.holding.nil?
-        potential_responders.select! {|thing| thing.can_respond_to(verb, user, direct_object, preposition, indirect_object)}
+    def prompt_look
+        nearby = user.player.location.contents
+        strings = nearby.each_with_index.map{|thing, i| "\n\t[#{i+1}]: #{thing.name}"}
+        strings << "\n\t[n]evermind"
+        while true
+            puts "What should I look at?"
+            puts strings.join
 
-        if potential_responders.length > 0
-            responder = potential_responders[0]
-            responder.call_parser_command(verb, user, direct_object, preposition, indirect_object)
+            choice = gets.chomp
+            if choice == 'n'
+                return
+            else
+                chosen_thing = nearby[choice.to_i - 1]
+                unless chosen_thing.nil?
+                    puts chosen_thing.describe
+                    return false
+                else
+                    puts "That wasn't an option."
+                end
+            end
+        end
+    end
+
+    def prompt_join
+        nearby_events = user.player.location.contents.map(&:event).compact.uniq
+        if nearby_events.length == 1
+            player.join(nearby_events[0])
+        elsif nearby_events.length == 0
+            puts "Nothing's going on here."
         else
-            puts "You want to #{verb} the #{direct_object} #{preposition} the #{indirect_object}?"
-            return false
+            puts "Which event should I join?"
         end
     end
 end
@@ -91,13 +142,5 @@ class User
 
     def location
         self.player.location
-    end
-
-    def match_noun(name, isnt=nil)
-        self.location.contents.find {|x| /#{name}/ =~ x.name && x != isnt}
-    end
-
-    def prompt
-        return gets.chomp
     end
 end

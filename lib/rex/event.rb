@@ -1,14 +1,23 @@
+require 'active_support/core_ext/array/conversions'
+
 class Event
-    attr_accessor :type, :name, :properties
-end
+    attr_accessor :participants
+    def initialize
+        self.participants = []
+    end
 
-class MoveEvent < Event
-    # Triggered when something moves from one place to another
-    attr_accessor :from_location, :to_location, :thing
+    def describe
+        return "#{self.participants.to_sentence} engaging in some mysterious errand."
+    end
 
-    def initialize(thing, from_location, to_location)
-        self.thing = thing
-        self.from_location = from_location
-        self.to_location = to_location
+    def tick
+    end
+
+    def add(actor)
+        self.participants << actor
+    end
+
+    def remove(actor)
+        self.participants.delete(actor)
     end
 end

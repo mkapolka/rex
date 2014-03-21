@@ -1,7 +1,8 @@
 require_relative 'room.rb'
 
 class Person < Thing
-    attr_accessor :holding, :wearing, :acted, :holding, :wearing
+    attr_accessor :holding, :wearing, :acted
+    attr_accessor :event
     attr_accessor :opinions
 
     def initialize
@@ -41,12 +42,29 @@ class Person < Thing
         return desc
     end
 
+    def leave_event(event)
+        self.event = nil
+        event.remove(self)
+    end
+
+    def join(event)
+        self.event = event
+        event.add(self)
+    end
+
     def name
         if not self.holding.nil?
             return "#{super}, holding #{self.holding.name}"
         else
             return "#{super}"
         end
+    end
+
+    def in_room?(room, room_class=nil)
+        if room.nil? and not room_class.nil?
+            room = self.location.world.locations.find{|x| x.class == room_class}
+        end
+        self.location == room
     end
 
     def move(room)

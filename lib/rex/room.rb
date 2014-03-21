@@ -1,9 +1,6 @@
-require_relative 'parseable_action.rb'
 require 'active_support/core_ext/class/attribute'
 
 class Room
-    extend ParseableAction
-
     def self._ROOMS
         @_ROOMS ||= []
         return @_ROOMS
