@@ -5,7 +5,14 @@ require 'rex/world.rb'
 require 'rex/parser.rb'
 
 world = World.new
-player = world.player
-parser = Parser.new(world, player)
-player.look
-parser.start
+
+continue = true
+begin
+    while continue
+        world.tick
+    end
+rescue QuitException
+    continue = false
+rescue Exception
+    puts $!, $@
+end 

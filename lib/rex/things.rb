@@ -28,32 +28,6 @@ class Throne < Thing
     end
 end
 
-class Player < Person
-    include Prince
-
-    self.name = "me"
-
-    self.starting_tunic_color = COLOR_WHITE
-
-    def tell(string)
-        puts string
-        puts ""
-    end
-
-    def look
-        self.tell "#{location.title}\n#{location.description}"
-        things = self.location.contents
-        ignored = things.each.reduce [] do |memo, obj|
-            memo << obj.holding if obj.respond_to? :holding
-            memo += obj.wearing if obj.respond_to? :wearing
-            memo
-        end
-        names = (things - ignored).map(&:name)
-        things_description = names.join("\n\t")
-        self.tell "I see here...\n\t#{things_description}"
-    end
-end
-
 class Clothing < Thing
     class_attribute :slot
     attr_accessor :worn_by

@@ -1,5 +1,6 @@
 require_relative 'room.rb'
 require_relative 'things.rb'
+require_relative 'player.rb'
 require 'rex/npcs/all.rb'
 
 class ThroneRoom < Room
@@ -32,7 +33,7 @@ end
 class MyRoom < Room
     self.description = "This is my room. Here, at least, I can expect some privacy."
     self.title = "My Room"
-    self.contents = []
+    self.contents = [Player]
 end
 
 class OctaviusRoom < Room

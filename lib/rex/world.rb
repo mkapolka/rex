@@ -1,6 +1,6 @@
 require_relative 'room.rb'
 require_relative 'places.rb'
-require_relative 'things.rb'
+require_relative 'player.rb'
 
 class World
     TIME_MIDNIGHT = 0
@@ -18,10 +18,14 @@ class World
             locations << room_class.new(self)
         end
         locations.each(&:initialize_exits)
-        self.player = Player.new
-        self.player.transport(locations[0])
+        all_things = locations.reduce([]){|memo, obj| memo += obj.contents}
+        players = all_things.select{|x| x.is_a? Player}
+        if players.length != 1
+            raise Exception.new "#{players.length} instances of `Player` found in the world! Please use exactly one. Current locations: #{players.map(&:location).map(&:name).join(", ")}"
+        end
+        self.player = players[0]
 
-        self.current_time = TIME_MORNING
+        self.current_time = TIME_MIDNIGHT
         self.current_day = 0
     end
 
@@ -30,7 +34,13 @@ class World
 
         # First, let the people do their own thing
         all_things = locations.reduce([]){|ary, loc| ary += loc.contents}
+        # Remove the player so they definitely go last
+        player = all_things.delete(all_things.find{|x| x.is_a? Player})
         all_things.each(&:tick)
+
+        # Then let the player tick
+        player.tick 
+
         # Then do the activities
         activities = all_things.map(&:event).compact.uniq
         activities.each(&:tick)

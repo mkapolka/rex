@@ -4,31 +4,15 @@ class Parser
     QUIT_KEYWORDS = ["quit", "exit", "end game"]
     IRB_KEYWORD = "irb"
 
-    attr_accessor :world, :player, :continue, :user, :nearby
+    attr_accessor :player, :continue, :user, :nearby
 
-    def initialize(world, player)
-        self.world = world
+    def initialize(player)
         self.player = player
         self.user = User.new player
     end
 
     def nearby
         return self.player.location.contents
-    end
-
-    def stop
-        continue = false
-    end
-
-    def start
-        continue = true
-        while continue
-            begin
-                self.world.tick if continue = prompt
-            rescue
-                puts $!, $@
-            end
-        end
     end
 
     def prompt
@@ -62,15 +46,13 @@ class Parser
                 Ripl.start :binding => binding
                 puts "Leaving IRB mode"
             when *QUIT_KEYWORDS
-                return false
+                raise QuitException.new "Quitting from prompt."
             end
         end
-
-        return true
     end
 
     def prompt_go
-        rooms = self.world.locations
+        rooms = self.player.location.world.locations
         strings = rooms.each_with_index.map{|location, i| "\n\t[#{i+1}]: #{location.title}"}
         strings << "\n\t[n]evermind"
         while true
@@ -143,4 +125,7 @@ class User
     def location
         self.player.location
     end
+end
+
+class QuitException < Exception
 end

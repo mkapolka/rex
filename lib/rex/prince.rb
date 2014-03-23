@@ -13,7 +13,6 @@ module Prince
 
     def self.included(cls)
         cls.instance_eval do |cls|
-            attr_accessor :tunic_color
             class_attribute :starting_tunic_color
         end
     end
@@ -24,5 +23,9 @@ module Prince
         else
             raise ArgumentError "#{value} is not a valid tunic color."
         end
+    end
+
+    def tunic_color
+        @tunic_color ||= self.starting_tunic_color
     end
 end

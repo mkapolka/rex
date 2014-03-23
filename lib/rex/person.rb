@@ -82,14 +82,6 @@ class Person < Thing
             return
         end
 
-        thing_holder = thing.held_by
-        if thing.held_by == self
-            self.tell "I'm already holding that!"
-            return
-        else
-            self._remove_thing_from_holder(thing)
-        end
-
         self.holding = thing
         thing.held_by = self
 
