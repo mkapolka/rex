@@ -22,7 +22,7 @@ class Parser
         acted = false
         while not acted
             puts "What should I do?"
-            puts "[g]o somewhere, [l]ook at something, [t]alk to someone, [d]o something, [j]oin an event, [w]ait a bit"
+            puts "[g]o somewhere, [l]ook at something, [t]alk to someone, [d]o something, [w]ait a bit"
 
             choice = gets.chomp
 
@@ -35,8 +35,6 @@ class Parser
                 acted = prompt_talk
             when 'd'
                 acted = prompt_do
-            when 'j'
-                acted = prompt_join
             when 'w'
                 acted = true
                 user.player.tell "I'll wait here a moment."
@@ -101,14 +99,44 @@ class Parser
         end
     end
 
-    def prompt_join
-        nearby_events = user.player.location.contents.map(&:event).compact.uniq
-        if nearby_events.length == 1
-            player.join(nearby_events[0])
-        elsif nearby_events.length == 0
-            puts "Nothing's going on here."
+    def prompt_do
+        actions = []
+        # Get actions from current location
+        actions += self.player.location.actions
+        self.player.location.contents.each do |thing|
+            actions += thing.actions if thing.respond_to? :actions
+        end
+
+        # Get actions from nearby events
+        nearby_events = self.player.location.contents.map{|x| x.event if x.respond_to? :event}
+        nearby_events.select! {|x| x}
+        nearby_events.each do |event|
+            actions += event.actions
+        end
+
+        actions.uniq!
+
+
+        if actions.length > 0
+            while true
+                puts "What should I do?"
+                options = ""
+                actions.each_with_index do |action, i|
+                    options += "\n[#{i+1}]: #{action.name}"
+                end
+                options += "\n[n]evermind"
+                puts options
+                choice = gets.chomp
+                if choice == 'n'
+                    return false
+                else
+                    index = choice.to_i
+                    chosen_action = actions[choice.to_i-1]
+                    return chosen_action.do(self.player) unless chosen_action.nil?
+                end
+            end
         else
-            puts "Which event should I join?"
+            puts "There's nothing to do here."
         end
     end
 end

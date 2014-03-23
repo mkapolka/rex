@@ -1,6 +1,9 @@
 require 'active_support/core_ext/class/attribute'
+require_relative 'action.rb'
 
 class Room
+    include ActionContainer
+
     def self._ROOMS
         @_ROOMS ||= []
         return @_ROOMS

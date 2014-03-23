@@ -1,6 +1,7 @@
 require 'rex/event'
 require 'rex/npcs/king'
 require 'rex/places'
+require 'rex/action'
 
 class HoldCourtEvent < Event
     def describe
@@ -34,7 +35,7 @@ class HoldCourtEvent < Event
                 response = gets.chomp
                 case response
                 when 'a'
-                    player.tell 'The king tells me, "You have the honesty to admit to your limitations. A wise choice."'
+                    player.tell 'The king tells me, "You have the honesty to admit your limitations. A wise choice."'
                     responded = true
                 when 'b'
                     player.tell 'The king tells me, "You are ambitious and tenacious. A wise choice."'
@@ -42,5 +43,11 @@ class HoldCourtEvent < Event
                 end
             end
         end
+    end
+
+    def actions
+        return [
+            Action.new("Attend court") {|player| player.join(self)}
+        ]
     end
 end

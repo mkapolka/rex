@@ -1,6 +1,9 @@
 require 'active_support/core_ext/array/conversions'
+require_relative 'action.rb'
 
 class Event
+    include ActionContainer
+
     attr_accessor :participants
     def initialize
         self.participants = []
