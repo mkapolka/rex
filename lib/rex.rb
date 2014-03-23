@@ -1,5 +1,6 @@
 $: << File.dirname(__FILE__)
 
+require 'require_all'
 require 'rex/world.rb'
 require 'rex/parser.rb'
 

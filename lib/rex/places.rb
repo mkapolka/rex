@@ -1,6 +1,6 @@
 require_relative 'room.rb'
 require_relative 'things.rb'
-require_relative 'npcs.rb'
+require 'rex/npcs/all.rb'
 
 class ThroneRoom < Room
     self.description = "The room is suffused with bright sunlight."
