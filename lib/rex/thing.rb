@@ -85,4 +85,8 @@ class Thing
             end
         end
     end
+
+    def time
+        self.location.world.current_time
+    end
 end

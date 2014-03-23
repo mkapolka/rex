@@ -5,9 +5,12 @@ class Person < Thing
     attr_accessor :event
     attr_accessor :opinions
 
+    attr_accessor :writing_skill
+
     def initialize
         super
         self.wearing = []
+        self.writing_skill = 0
     end
 
     def wear(clothing)
@@ -133,5 +136,20 @@ class Person < Thing
     def put_thing_into(thing, container)
         self._remove_thing_from_holder(thing)
         container.add(thing, self)
+    end
+
+    def say(what)
+        self.tell_others "#{self.name} says, \"#{what}\""
+    end
+
+    def join_or_start_event(event_class, init_args=[])
+        events = self.location.contents.map{|x| x.event if x.respond_to? :event}
+        ongoing = events.find{|x| x.is_a? event_class}
+        print ongoing
+        unless ongoing.nil?
+            self.join(ongoing)
+        else
+            self.join(event_class.new *init_args)
+        end
     end
 end

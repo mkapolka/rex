@@ -20,4 +20,8 @@ class Event
     def remove(actor)
         self.participants.delete(actor)
     end
+
+    def end
+        participants.each{|participant| participant.leave_event(self)}
+    end
 end

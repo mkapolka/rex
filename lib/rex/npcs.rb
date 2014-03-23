@@ -13,6 +13,16 @@ class King < NPC
         e = HoldCourtEvent.new
         self.join(e)
     end
+
+    def tick
+        super
+        if self.time == World::TIME_EVENING
+            self.say "Time for dinner!"
+            self.leave_event(self.event)
+            self.move self.find_room(DiningRoom)
+            self.join_or_start_event(DinnerEvent)
+        end
+    end
 end
 
 class HoldCourtEvent < Event
@@ -87,5 +97,62 @@ class CookingEvent  < Event
                 actor.tell_others(messages[rand(messages.length)])
             end
         end
+    end
+end
+
+class Scholar < NPC
+    self.name = "the scholar"
+    self.description = "He researches the mysteries of the world."
+
+    def intiialize
+        super
+        self.event = ResearchEvent.new
+    end
+end
+
+class ResearchEvent < Event
+    def tick
+        self.participants.each do |actor|
+            messages = [
+                "#{actor.name} fiddles with an orrery",
+                "#{actor.name} looks through a telescope",
+                "#{actor.name} thumbs through some books"
+            ]
+
+            actor.tell_others(messages[rand(message.length)])
+        end
+    end
+end
+
+class TeachEvent < Event
+    def tick
+        teacher = participants.find{|x| x.class == Scholar}
+        pupils = participants.select{|x| x.is_a? Prince}
+        player = participants.find{|x| x.class == Player}
+
+        if teacher.nil?
+            pupils.each do |actor|
+                actor.tell "Well, I guess the lesson can't continue if there's no one here to teach us."
+                actor.leave_event(self)
+            end
+            return
+        end
+
+        if pupils.empty?
+            teacher.leave_event(self)
+            return
+        end
+
+        pupils.each do |actor|
+            actor.tell "#{teacher.name} teaches me how to read and write better."
+            actor.writing_skill += 1
+        end
+    end
+end
+
+class DinnerEvent < Event
+    def tick
+        self.participants.each {|x| x.tell "Everyone has a really nice meal and nothing interesting happens at all."}
+        self.end()
     end
 end

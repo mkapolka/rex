@@ -1,11 +1,12 @@
 require_relative 'event.rb'
+require_relative 'prince.rb'
 
 class NPC < Person
     attr_accessor :opinions
     class_attribute :belief_priority
 
     PRINCE_IDENTITIES = {
-        Prince::COLOR_RED: 'Septimus'
+        Prince::COLOR_RED => 'Septimus'
     }
 
     def initialize
@@ -23,9 +24,8 @@ class NPC < Person
         who[id] ||= Opinions.new
     end
 
-    def resolve_prince_identity who
-        if not who.wearing.nil?
-        end
+    def resolve_prince_identity(who)
+        return PRINCE_IDENTITIES[who.tunic_color]
     end
 
     def tick

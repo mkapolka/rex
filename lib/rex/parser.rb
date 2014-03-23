@@ -44,7 +44,7 @@ class Parser
 
             case choice
             when 'g'
-                acted = prompt_go
+                prompt_go
             when 'l'
                 prompt_look
             when 't'
