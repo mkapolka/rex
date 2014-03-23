@@ -121,23 +121,6 @@ class Person < Thing
         self.tell_others "#{self.name} drops #{thing.name}"
     end
 
-    def _remove_thing_from_holder(thing)
-        # Bookkeeping method. The actor responsible for taking the object out
-        # is the one to make sure that it is removed from the thing its taking from.
-        if not thing.held_by.nil?
-            if thing.held_by.is_a? Person then
-                thing.held_by.holding = nil
-            elsif thing.held_by.is_a? Container then
-                thing.held_by.remove(thing, self)
-            end
-        end
-    end
-
-    def put_thing_into(thing, container)
-        self._remove_thing_from_holder(thing)
-        container.add(thing, self)
-    end
-
     def say(what)
         self.tell_others "#{self.name} says, \"#{what}\""
     end

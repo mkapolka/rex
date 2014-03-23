@@ -39,8 +39,3 @@ class OctaviusRoom < Room
     self.description = "This is Octavius' room. It's a pigsty."
     self.title = "Octavius' Room"
 end
-
-class Stables < Room
-    self.description = "Smells like horses despite their absence."
-    self.title = "The Stables"
-end
