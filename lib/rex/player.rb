@@ -38,4 +38,18 @@ class Player < Person
         things_description = names.join("\n\t")
         self.tell "I see here...\n\t#{things_description}"
     end
+
+    def choose(message, options)
+        #Options = dict of key => printed string
+        while true
+            puts message
+            puts options.values.join("\n")
+            response = gets.chomp
+            if options.keys.index(response)
+                return response
+            else
+                puts "That's not an option."
+            end
+        end
+    end
 end

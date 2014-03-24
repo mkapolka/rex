@@ -8,6 +8,6 @@ class Cook < NPC
 
     def initialize
         super
-        self.event = CookingEvent.new
+        self.join(CookingEvent.new)
     end
 end

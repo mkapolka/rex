@@ -66,6 +66,12 @@ class Room
             thing.witness(event) if thing.respond_to? :witness
         end
     end
+
+    def tell_everyone(message)
+        self.contents.each do |thing|
+            thing.tell(message)
+        end
+    end
 end
 
 class Exit

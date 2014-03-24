@@ -22,17 +22,17 @@ class Parser
         acted = false
         while not acted
             puts "What should I do?"
-            puts "[g]o somewhere, [l]ook at something, [t]alk to someone, [d]o something, [w]ait a bit"
+            puts "[g]o somewhere, [l]ook at something, [d]o something, [w]ait a bit"
 
             choice = gets.chomp
+
+            puts "=================="
 
             case choice
             when 'g'
                 prompt_go
             when 'l'
                 prompt_look
-            when 't'
-                acted = prompt_talk
             when 'd'
                 acted = prompt_do
             when 'w'
@@ -110,6 +110,7 @@ class Parser
         # Get actions from nearby events
         nearby_events = self.player.location.contents.map{|x| x.event if x.respond_to? :event}
         nearby_events.select! {|x| x}
+        nearby_events.uniq!
         nearby_events.each do |event|
             actions += event.actions
         end
