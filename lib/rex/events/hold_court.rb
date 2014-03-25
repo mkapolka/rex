@@ -6,7 +6,12 @@ require 'rex/action'
 class HoldCourtEvent < Event
     def describe
         not_leader = self.participants - [self.leader]
-        return "#{self.leader.name} is holding court. #{not_leader.map(&:name).to_sentence} are in attendance."
+        if not_leader.length == 0
+            not_leader_string = "Various courtiers"
+        else
+            not_leader_string = not_leader.map(&:name).to_sentence
+        end
+        return "#{self.leader.name} is holding court. #{not_leader_string.capitalize} are in attendance."
     end
 
     def leader

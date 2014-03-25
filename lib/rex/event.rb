@@ -10,7 +10,7 @@ class Event
     end
 
     def describe
-        return "#{self.participants.to_sentence} engaging in some mysterious errand."
+        return "#{self.participants.to_sentence} are engaged in some mysterious errand."
     end
 
     def tick

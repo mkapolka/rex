@@ -1,3 +1,4 @@
+require 'active_support/core_ext/array/conversions'
 require 'rex/places'
 require 'rex/action'
 require 'rex/player'
@@ -10,6 +11,15 @@ class CookingEvent  < Event
     def initialize
         super
         self.preparedness = 0
+    end
+
+    def describe
+        if self.participants.length == 1
+            return "#{self.participants[0].name.capitalize} is cooking dinner."
+        else
+            names = self.participants.map(&:name).to_sentence        
+            return "#{names} are cooking dinner."
+        end
     end
 
     def cook
