@@ -23,7 +23,9 @@ class Player < Person
 
     def tick
         super
-        self.parser.prompt
+        if self.event.nil?
+            self.parser.prompt
+        end
     end
 
     def look
@@ -45,7 +47,9 @@ class Player < Person
         people_names = other_people.map(&:name).to_sentence + "are here, just standing around."
         other_things = (things - ignored - people_in_events - other_people)
         
-        self.tell "#{event_descriptions}\n"
+        if events.length > 0
+            self.tell "#{event_descriptions}\n"
+        end
         if other_people.length > 0
             self.tell "#{people_names}\n"
         end

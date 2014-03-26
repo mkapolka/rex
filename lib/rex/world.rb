@@ -34,15 +34,21 @@ class World
 
         # First, let the people do their own thing
         all_things = locations.reduce([]){|ary, loc| ary += loc.contents}
-        # Remove the player so they definitely go last
+        # Move the player to the end so they always act last
         player = all_things.delete(all_things.find{|x| x.is_a? Player})
-        all_things.each(&:tick)
-
-        # Then let the player tick
-        player.tick 
+        all_things.push(player)
+        all_things.each do |thing|
+            begin
+                thing.tick
+            rescue QuitException
+                raise
+            rescue Exception
+                puts $!, $@
+            end
+        end
 
         # Then do the activities
-        activities = all_things.map(&:event).compact.uniq
+        activities = all_things.map{|x| x.event if x.respond_to? :event}.compact.uniq
         activities.each(&:tick)
     end
 

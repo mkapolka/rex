@@ -53,9 +53,9 @@ class CookingEvent  < Event
     def assist_cook_action(player)
         if self.preparedness == REQUIRED_PREPAREDNESS - self.participants.length
             self.cook.say "Oh, I have it under control, you don't need to help."
-            do_anyway = who.choose("Help anyway?", {'y' => '[y]es', 'n' => '[n]o'})
+            do_anyway = player.choose("Help anyway?", {'y' => '[y]es', 'n' => '[n]o'})
             if do_anyway == 'n'
-                who.tell "Yeah, I guess there are better things to do."
+                player.tell "Yeah, I guess there are better things to do."
                 return false
             end
         end

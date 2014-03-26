@@ -79,6 +79,7 @@ class Parser
     def prompt_look
         nearby = user.player.location.contents
         strings = nearby.each_with_index.map{|thing, i| "\n\t[#{i+1}]: #{thing.name}"}
+        strings << "\n\t[a]round"
         strings << "\n\t[n]evermind"
         while true
             puts "What should I look at?"
@@ -87,7 +88,10 @@ class Parser
             choice = gets.chomp
             if choice == 'n'
                 return
-            else
+            elsif choice == 'a'
+                self.player.look
+                return
+            elsif
                 chosen_thing = nearby[choice.to_i - 1]
                 unless chosen_thing.nil?
                     puts chosen_thing.describe

@@ -11,7 +11,8 @@ class HoldCourtEvent < Event
         else
             not_leader_string = not_leader.map(&:name).to_sentence
         end
-        return "#{self.leader.name} is holding court. #{not_leader_string.capitalize} are in attendance."
+        leader_name = self.leader.nil? ? "No one" : self.leader.name
+        return "#{leader_name} is holding court. #{not_leader_string.capitalize} are in attendance."
     end
 
     def leader
@@ -46,6 +47,10 @@ class HoldCourtEvent < Event
                     player.tell 'The king tells me, "You are ambitious and tenacious. A wise choice."'
                     responded = true
                 end
+            end
+            r = player.choose("There's a lull in the court and I have an opportunity to excuse myself. Should I take it?", {'y' => "[y]es", 'n' => "[n]o"})
+            if r == 'y'
+                player.leave_event(self)
             end
         end
     end

@@ -17,7 +17,7 @@ class Event
     end
 
     def add(actor)
-        self.participants << actor
+        self.participants << actor unless self.participants.index(actor)
     end
 
     def remove(actor)

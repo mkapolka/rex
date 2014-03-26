@@ -28,13 +28,6 @@ class NPC < Person
         return PRINCE_IDENTITIES[who.tunic_color]
     end
 
-    def tick
-        super
-        if self.event.nil? then
-            self.decide_next_event
-        end
-    end
-
     #Basic memory and scheduling tasks
     def witness(event)
         case event
