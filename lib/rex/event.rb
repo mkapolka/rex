@@ -25,6 +25,14 @@ class Event
     end
 
     def end
-        participants.each{|participant| participant.leave_event(self)}
+        participants.dup.each{|participant| participant.leave_event(self)}
+    end
+
+    def escapable?
+        return true
+    end
+
+    def escape_clause
+        return "Should I keep doing this?"
     end
 end

@@ -42,7 +42,7 @@ class World
                 thing.tick
             rescue QuitException
                 raise
-            rescue Exception
+            rescue StandardError
                 puts $!, $@
             end
         end

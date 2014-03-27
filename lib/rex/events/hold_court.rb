@@ -19,6 +19,18 @@ class HoldCourtEvent < Event
         self.participants.find{|x| x.class == King}
     end
 
+    def remove(person)
+        if person == self.leader
+            super
+            self.participants.each do |participant|
+                participant.tell "#{person.name.capitalize} has left. Court is no longer in session."
+            end
+            self.end
+        else
+            super
+        end
+    end
+
     def tick
         participants.each do |actor|
             # Move the participants to the throne room

@@ -32,6 +32,14 @@ class CookingEvent  < Event
                 actor.move actor.find_room Kitchen
             end
         end
+        
+        if self.cook.nil?
+            self.participants.each do |participant|
+                participant.tell "I can't continue making dinner without the cook's help."
+            end
+            self.end
+            return
+        end
 
         message = "#{cook.name} bustles around preparing dinner."
         self.cook.location.tell_everyone message
@@ -47,6 +55,7 @@ class CookingEvent  < Event
 
         if self.preparedness >= REQUIRED_PREPAREDNESS
             self.cook.say "Well! It looks like everything's ready."
+            self.end
         end
     end
 
@@ -60,7 +69,7 @@ class CookingEvent  < Event
             end
         end
 
-        self.add(player)
+        player.join(self)
         return true
     end
 

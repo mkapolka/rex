@@ -16,7 +16,7 @@ while continue
         world.tick
     rescue QuitException
         continue = false
-    rescue Exception
+    rescue StandardError
         puts $!, $@
     end 
 end
