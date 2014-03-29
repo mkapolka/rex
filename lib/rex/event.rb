@@ -4,9 +4,10 @@ require_relative 'action.rb'
 class Event
     include ActionContainer
 
-    attr_accessor :participants
+    attr_accessor :participants, :done
     def initialize
         self.participants = []
+        self.done = false
     end
 
     def describe
@@ -25,7 +26,7 @@ class Event
     end
 
     def end
-        participants.dup.each{|participant| participant.leave_event(self)}
+        self.done = true
     end
 
     def escapable?

@@ -4,6 +4,7 @@ class Person < Thing
     attr_accessor :holding, :wearing, :acted
     attr_accessor :event
     attr_accessor :opinions
+    attr_accessor :occupied
 
     attr_accessor :writing_skill
 
@@ -23,6 +24,10 @@ class Person < Thing
         self.tell_others "#{self.name} puts on #{clothing.name.downcase}"
         self.wearing << clothing
         clothing.worn_by = self
+    end
+
+    def occupied?
+        return self.occupied
     end
 
     def unwear(clothing)

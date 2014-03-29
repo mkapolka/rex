@@ -9,7 +9,7 @@ class World
     TIME_EVENING = 3
     TIME_NIGHT = 4
 
-    attr_accessor :locations, :player
+    attr_accessor :locations, :player, :events
     attr_accessor :current_time, :current_day
 
     def initialize
@@ -27,29 +27,32 @@ class World
 
         self.current_time = TIME_MIDNIGHT
         self.current_day = 0
+        self.events = []
     end
 
-    def tick
-        self.advance_time
+    def add_event(event)
+        self.events << event
+    end
 
-        # First, let the people do their own thing
-        all_things = locations.reduce([]){|ary, loc| ary += loc.contents}
-        # Move the player to the end so they always act last
-        player = all_things.delete(all_things.find{|x| x.is_a? Player})
-        all_things.push(player)
-        all_things.each do |thing|
-            begin
-                thing.tick
-            rescue QuitException
-                raise
-            rescue StandardError
-                puts $!, $@
-            end
-        end
+    def remove_event(event)
+        self.events.delete(event)
+    end
 
-        # Then do the activities
-        activities = all_things.map{|x| x.event if x.respond_to? :event}.compact.uniq
-        activities.each(&:tick)
+    def add(thing, location)
+        location.add(thing)
+        things << thing
+    end
+
+    def things
+        return (self.locations.map{|x| x.contents}).flatten
+    end
+
+    def events_in(room)
+        return (room.contents.map{|x| x.event if x.respond_to? :event}).compact.uniq
+    end
+
+    def location(thing)
+        return self.locations.find{|x| x.contents.find(thing)}
     end
 
     def advance_time
