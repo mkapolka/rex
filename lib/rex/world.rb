@@ -17,7 +17,6 @@ class World
         Room::_ROOMS.each do |room_class|
             locations << room_class.new(self)
         end
-        locations.each(&:initialize_exits)
         all_things = locations.reduce([]){|memo, obj| memo += obj.contents}
         players = all_things.select{|x| x.is_a? Player}
         if players.length != 1
@@ -48,11 +47,20 @@ class World
     end
 
     def events_in(room)
-        return (room.contents.map{|x| x.event if x.respond_to? :event}).compact.uniq
+        return events.select{|x| x.participants.find{|y| y.location == room}}
     end
 
-    def location(thing)
+    def events_including(thing)
+        return events.select{|x| x.participants.find(thing)}
+    end
+
+    def location_of(thing)
         return self.locations.find{|x| x.contents.find(thing)}
+    end
+
+    def move_thing(thing, location)
+        self.location_of(thing).remove(thing)
+        location.add(thing)
     end
 
     def advance_time

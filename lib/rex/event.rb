@@ -14,7 +14,7 @@ class Event
         return "#{self.participants.to_sentence} are engaged in some mysterious errand."
     end
 
-    def tick
+    def tick(world)
     end
 
     def add(actor)
@@ -35,5 +35,9 @@ class Event
 
     def escape_clause
         return "Should I keep doing this?"
+    end
+
+    def engrossing?(person)
+        return true
     end
 end

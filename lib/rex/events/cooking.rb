@@ -26,7 +26,7 @@ class CookingEvent  < Event
         self.participants.find{|x| x.is_a? Cook}
     end
 
-    def tick
+    def tick(world)
         participants.each do |actor|
             if not actor.in_room? Kitchen
                 actor.move actor.find_room Kitchen

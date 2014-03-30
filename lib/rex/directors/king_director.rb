@@ -7,20 +7,16 @@ class KingDirector < Director
 
     def tick
         case self.world.current_time
-        when [World::TIME_MORNING, World::TIME_MIDDAY]
-            event = self.world.events.find{|x| x.participants.find(self.actor)}
-            if event.nil?
-                event = HoldCourtEvent.new
-                event.add(self.actor)
-                world.add_event(event)
-            end
-        end
-        
-        if self.world.current_time == World::TIME_EVENING
+        when World::TIME_MORNING, World::TIME_MIDDAY
+            event = self.join_or_start_event(self.actor, world, HoldCourtEvent)
+        when World::TIME_EVENING
             self.actor.say "Time for dinner!"
-            self.actor.leave_event(self.event)
-            self.actor.move self.world.find_room(DiningRoom)
-            self.actor.join_or_start_event(DinnerEvent)
+            events = self.world.events_including(self.actor)
+            events.each do |event|
+                event.remove(self.actor) if event.engrossing?(self.actor)
+            end
+            self.world.move_thing(self.actor, self.world.find_room(DiningRoom))
+            self.join_or_start_event(self.actor, self.world, DinnerEvent)
         end
     end
 end

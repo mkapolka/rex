@@ -2,6 +2,7 @@ require 'rex/event'
 require 'rex/npcs/king'
 require 'rex/places'
 require 'rex/action'
+require 'rex/parser'
 
 class HoldCourtEvent < Event
     def describe
@@ -31,7 +32,7 @@ class HoldCourtEvent < Event
         end
     end
 
-    def tick
+    def tick(world)
         participants.each do |actor|
             # Move the participants to the throne room
             if actor.location.class != ThroneRoom then
@@ -60,7 +61,7 @@ class HoldCourtEvent < Event
                     responded = true
                 end
             end
-            r = player.choose("There's a lull in the court and I have an opportunity to excuse myself. Should I take it?", {'y' => "[y]es", 'n' => "[n]o"})
+            r = choose("There's a lull in the court and I have an opportunity to excuse myself. Should I take it?", {'y' => "[y]es", 'n' => "[n]o"})
             if r == 'y'
                 player.leave_event(self)
             end

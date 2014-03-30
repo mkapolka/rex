@@ -11,4 +11,15 @@ class Director
 
     def tick
     end
+
+    def join_or_start_event(actor, world, event_class)
+        event = self.world.events.find{|x| x.is_a? event_class}
+        if event.nil?
+            event = event_class.new
+            self.world.add_event(event)
+        end
+
+        event.add(actor)
+        return event
+    end
 end

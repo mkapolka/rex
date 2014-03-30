@@ -28,7 +28,7 @@ class Game
 
             self.world.events.each do |event|
                 begin
-                    event.tick
+                    event.tick(self.world)
                 rescue StandardError
                     puts $!, $@
                 end

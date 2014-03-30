@@ -1,7 +1,7 @@
 require 'rex/npcs/all'
 
 class TeachEvent < Event
-    def tick
+    def tick(world)
         teacher = participants.find{|x| x.class == Scholar}
         pupils = participants.select{|x| x.is_a? Prince}
         player = participants.find{|x| x.class == Player}

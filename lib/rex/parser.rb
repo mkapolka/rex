@@ -59,7 +59,7 @@ class Parser
                         puts "I'm already there!"
                     else
                         puts "I walk to #{chosen_room.title}."
-                        player.move chosen_room
+                        world.move_thing(player, chosen_room)
                         self.describe_room(player, world, chosen_room)
                         success = true
                         return true
@@ -104,9 +104,7 @@ class Parser
         end
 
         # Get actions from nearby events
-        nearby_events = player.location.contents.map{|x| x.event if x.respond_to? :event}
-        nearby_events.select! {|x| x}
-        nearby_events.uniq!
+        nearby_events = world.events_in(world.location_of(player))
         nearby_events.each do |event|
             actions += event.actions
         end

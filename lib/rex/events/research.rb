@@ -1,5 +1,5 @@
 class ResearchEvent < Event
-    def tick
+    def tick(world)
         self.participants.each do |actor|
             messages = [
                 "#{actor.name} fiddles with an orrery",

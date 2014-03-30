@@ -16,30 +16,6 @@ class Thing
         return self.name
     end
 
-    def transport(room)
-        # The more medical version of "move".
-        # Moves the Thing to that location but doesn't trigger any callbacks
-        if not self.location.nil?
-            location.contents.delete self
-        end
-
-        self.location = room
-
-        if not room.nil?
-            room.contents.push self
-        end
-    end
-
-    def move(room)
-        if room != self.location then
-            self.transport(room)
-        end
-    end
-
-    def find_room(room_class)
-        self.location.world.locations.find{|x| x.class == room_class}
-    end
-
     def destroy
         self.transport(nil)
         self.destroyed = true
