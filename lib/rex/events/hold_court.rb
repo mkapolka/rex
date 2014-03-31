@@ -36,7 +36,7 @@ class HoldCourtEvent < Event
         participants.each do |actor|
             # Move the participants to the throne room
             if actor.location.class != ThroneRoom then
-                actor.move actor.find_room ThroneRoom
+                actor.move world.find_room ThroneRoom
             end
         end
 
@@ -70,7 +70,7 @@ class HoldCourtEvent < Event
 
     def actions
         return [
-            Action.new("Attend court") {|player| player.join(self)}
+            Action.new("Attend court") {|player| player.join_event(self)}
         ]
     end
 end

@@ -65,4 +65,14 @@ class Thing
     def time
         self.location.world.current_time
     end
+
+    def move(where)
+        unless self.location.nil?
+            self.location.remove(self)
+        end
+
+        unless where.nil?
+            where.add(self)
+        end
+    end
 end

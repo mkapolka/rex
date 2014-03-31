@@ -47,20 +47,11 @@ class World
     end
 
     def events_in(room)
-        return events.select{|x| x.participants.find{|y| y.location == room}}
+        return (room.contents.map{|x| x.events}).flatten.uniq
     end
 
     def events_including(thing)
         return events.select{|x| x.participants.find(thing)}
-    end
-
-    def location_of(thing)
-        return self.locations.find{|x| x.contents.find(thing)}
-    end
-
-    def move_thing(thing, location)
-        self.location_of(thing).remove(thing)
-        location.add(thing)
     end
 
     def advance_time

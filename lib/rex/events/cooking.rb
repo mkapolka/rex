@@ -69,7 +69,7 @@ class CookingEvent  < Event
             end
         end
 
-        player.join(self)
+        self.add(player)
         return true
     end
 

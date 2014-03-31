@@ -18,10 +18,20 @@ class Event
     end
 
     def add(actor)
-        self.participants << actor unless self.participants.index(actor)
+        self._add_participant(actor)
+        actor._add_event(self)
     end
 
     def remove(actor)
+        self._remove_participant(actor)
+        actor._remove_event(self)
+    end
+
+    def _add_participant(actor)
+        self.participants << actor unless self.participants.index(actor)
+    end
+
+    def _remove_participant(actor)
         self.participants.delete(actor)
     end
 
@@ -38,6 +48,8 @@ class Event
     end
 
     def engrossing?(person)
+        # Taxonomic method. Does this event take up the full attention
+        # of the person?
         return true
     end
 end

@@ -1,8 +1,8 @@
 require_relative 'room.rb'
 
 class Person < Thing
-    attr_accessor :holding, :wearing, :acted
-    attr_accessor :event
+    attr_accessor :holding, :wearing, :acted, :location
+    attr_accessor :events
     attr_accessor :opinions
     attr_accessor :occupied
 
@@ -10,6 +10,7 @@ class Person < Thing
 
     def initialize
         super
+        self.events = []
         self.wearing = []
         self.writing_skill = 0
     end
@@ -50,16 +51,6 @@ class Person < Thing
         return desc
     end
 
-    def leave_event(event)
-        self.event = nil
-        event.remove(self)
-    end
-
-    def join(event)
-        self.event = event
-        event.add(self)
-    end
-
     def name
         if not self.holding.nil?
             return "#{super}, holding #{self.holding.name}"
@@ -70,9 +61,27 @@ class Person < Thing
 
     def in_room?(room, room_class=nil)
         if room.nil? and not room_class.nil?
-            room = self.location.world.locations.find{|x| x.class == room_class}
+            return self.location.is_a? room_class
         end
         self.location == room
+    end
+
+    def join_event(event)
+        self._add_event(event)
+        event._add_participant(self)
+    end
+
+    def leave_event(event)
+        self.remove_event(event)
+        event.remove_participant(self)
+    end
+    
+    def _add_event(event)
+        self.events << event unless self.events.index(event)
+    end
+
+    def _remove_event(event)
+        self.events.delete(event)
     end
 
     def move(room)
@@ -127,9 +136,9 @@ class Person < Thing
         ongoing = events.find{|x| x.is_a? event_class}
         print ongoing
         unless ongoing.nil?
-            self.join(ongoing)
+            self.join_event(ongoing)
         else
-            self.join(event_class.new *init_args)
+            self.join_event(event_class.new *init_args)
         end
     end
 end
