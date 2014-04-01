@@ -7,7 +7,15 @@ class DinnerEvent < Event
     end
 
     def describe
-        names = self.participants.map(&:name).to_sentence
-        return "#{names} are eating dinner."
+        if participants.length > 1 then
+            names = self.participants.map(&:name).to_sentence
+            return "#{names} are eating dinner."
+        else
+            return "#{participants[0].name} is eating dinner."
+        end
+    end
+
+    def actions
+        return [Action.new("Eat dinner"){|x| self.add(x)}]
     end
 end

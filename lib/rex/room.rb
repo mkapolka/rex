@@ -4,6 +4,8 @@ require_relative 'action.rb'
 class Room
     include ActionContainer
 
+    attr_accessor :world
+
     def self._ROOMS
         @_ROOMS ||= []
         return @_ROOMS
@@ -25,6 +27,9 @@ class Room
             thing = thing_class.new
             self.add(thing)
         end
+
+        self.world = world
+        world.add_room(self)
     end
 
     def add(thing)

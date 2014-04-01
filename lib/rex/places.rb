@@ -34,6 +34,14 @@ class MyRoom < Room
     self.description = "This is my room. Here, at least, I can expect some privacy."
     self.title = "My Room"
     self.contents = [Player]
+
+    def actions
+        [
+            Action.new("Go to sleep") do |actor|
+                actor.join_event(SleepEvent.new(self.world))
+            end
+        ]
+    end
 end
 
 class OctaviusRoom < Room

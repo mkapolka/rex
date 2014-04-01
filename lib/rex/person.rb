@@ -4,7 +4,7 @@ class Person < Thing
     attr_accessor :holding, :wearing, :acted, :location
     attr_accessor :events
     attr_accessor :opinions
-    attr_accessor :occupied
+    attr_accessor :occupied, :sleeping
 
     attr_accessor :writing_skill
 
@@ -29,6 +29,10 @@ class Person < Thing
 
     def occupied?
         return self.occupied
+    end
+
+    def sleeping?
+        return self.sleeping
     end
 
     def unwear(clothing)

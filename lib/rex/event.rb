@@ -5,9 +5,10 @@ class Event
     include ActionContainer
 
     attr_accessor :participants, :done
-    def initialize
+    def initialize(world)
         self.participants = []
         self.done = false
+        world.add_event(self)
     end
 
     def describe
@@ -36,6 +37,9 @@ class Event
     end
 
     def end
+        self.participants.dup.each do |participant|
+            self.remove(participant)
+        end
         self.done = true
     end
 

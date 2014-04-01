@@ -15,7 +15,7 @@ class World
     def initialize
         self.locations = []
         Room::_ROOMS.each do |room_class|
-            locations << room_class.new(self)
+            room_class.new(self)
         end
         all_things = locations.reduce([]){|memo, obj| memo += obj.contents}
         players = all_things.select{|x| x.is_a? Player}
@@ -27,6 +27,10 @@ class World
         self.current_time = TIME_MIDNIGHT
         self.current_day = 0
         self.events = []
+    end
+
+    def add_room(room)
+        self.locations << room unless self.locations.index(room)
     end
 
     def add_event(event)

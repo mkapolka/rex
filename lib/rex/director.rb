@@ -15,7 +15,7 @@ class Director
     def join_or_start_event(actor, world, event_class)
         event = self.world.events.find{|x| x.is_a? event_class}
         if event.nil?
-            event = event_class.new
+            event = event_class.new(world)
             self.world.add_event(event)
         end
 
