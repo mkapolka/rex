@@ -1,6 +1,7 @@
 require_relative 'room.rb'
 require_relative 'things.rb'
 require_relative 'player.rb'
+require 'rex/parser'
 require 'rex/npcs/all.rb'
 
 class ThroneRoom < Room
@@ -38,9 +39,20 @@ class MyRoom < Room
     def actions
         [
             Action.new("Go to sleep") do |actor|
-                actor.join_event(SleepEvent.new(self.world))
+                self.sleep_prompt(actor)
             end
         ]
+    end
+
+    def sleep_prompt(actor)
+        if self.world.current_time < World::TIME_EVENING
+            response = choose("It's not very late yet. Should I really go to sleep?", {'y' => '[y]es', 'n' => '[n]o'})
+            if response == 'n'
+                return false
+            end
+        end
+        actor.tell "I lie down and go to sleep."
+        actor.join_event(SleepEvent.new(self.world))
     end
 end
 

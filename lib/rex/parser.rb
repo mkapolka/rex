@@ -14,30 +14,34 @@ class Parser
 
         acted = false
         while not acted
-            puts "What should I do?"
-            puts "[g]o somewhere, [l]ook at something, [d]o something, [w]ait a bit"
+            begin
+                puts "What should I do?"
+                puts "[g]o somewhere, [l]ook at something, [d]o something, [w]ait a bit"
 
-            choice = gets.chomp
+                choice = gets.chomp
 
-            puts "=================="
+                puts "=================="
 
-            case choice
-            when 'g'
-                prompt_go(player, world)
-            when 'l'
-                prompt_look(player, world)
-            when 'd'
-                acted = prompt_do(player, world)
-            when 'w'
-                acted = true
-                player.tell "I'll wait here a moment."
-            when IRB_KEYWORD
-                require 'ripl'
-                puts "Entering IRB mode"
-                Ripl.start :binding => binding
-                puts "Leaving IRB mode"
-            when *QUIT_KEYWORDS
-                raise QuitException.new "Quitting from prompt."
+                case choice
+                when 'g'
+                    prompt_go(player, world)
+                when 'l'
+                    prompt_look(player, world)
+                when 'd'
+                    acted = prompt_do(player, world)
+                when 'w'
+                    acted = true
+                    player.tell "I'll wait here a moment."
+                when IRB_KEYWORD
+                    require 'ripl'
+                    puts "Entering IRB mode"
+                    Ripl.start :binding => binding
+                    puts "Leaving IRB mode"
+                when *QUIT_KEYWORDS
+                    raise QuitException.new "Quitting from prompt."
+                end
+            rescue StandardError
+                puts $!, $@
             end
         end
     end

@@ -76,8 +76,8 @@ class Person < Thing
     end
 
     def leave_event(event)
-        self.remove_event(event)
-        event.remove_participant(self)
+        self._remove_event(event)
+        event._remove_participant(self)
     end
     
     def _add_event(event)
